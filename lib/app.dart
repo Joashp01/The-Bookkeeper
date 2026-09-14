@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'core/di/app_providers.dart';
 import 'core/theme/app_theme.dart';
-import 'shared/placeholder_home.dart';
+import 'features/search/presentation/screens/search_screen.dart';
 
 /// Root widget. Installs the dependency graph (composition root) above the
 /// [MaterialApp] and configures light/dark theming. It holds no business logic.
@@ -12,18 +12,16 @@ class BookshelfApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final materialApp = MaterialApp(
-      title: 'The Bookkeeper',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      home: const PlaceholderHome(),
+    return MultiProvider(
+      providers: providers,
+      child: MaterialApp(
+        title: 'The Bookkeeper',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: ThemeMode.system,
+        home: const SearchScreen(),
+      ),
     );
-
-    // `MultiProvider` requires a non-empty list; until feature branches register
-    // dependencies we render the app directly.
-    if (providers.isEmpty) return materialApp;
-    return MultiProvider(providers: providers, child: materialApp);
   }
 }
