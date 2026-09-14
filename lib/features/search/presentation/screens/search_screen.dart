@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/search_state.dart';
 import '../viewmodels/search_view_model.dart';
 import '../widgets/book_tile.dart';
+import 'detail_screen.dart';
 
 /// The search screen (F1). Owns the scroll controller (a UI concern) and wires
 /// input and scroll events to the [SearchViewModel]; it contains no business
@@ -99,7 +100,11 @@ class _StateView extends StatelessWidget {
                 child: Center(child: CircularProgressIndicator()),
               );
             }
-            return BookTile(book: books[index]);
+            final book = books[index];
+            return BookTile(
+              book: book,
+              onTap: () => openBookDetail(context, book),
+            );
           },
         ),
     };
