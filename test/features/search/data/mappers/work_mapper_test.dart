@@ -64,5 +64,21 @@ void main() {
       ).toDomain();
       expect(detail.title, 'Untitled');
     });
+
+    test('prefers the work cover over the fallback cover', () {
+      final detail = dto.toDomain(fallbackCoverId: 999);
+      expect(detail.coverId, 42);
+    });
+
+    test('uses the fallback cover when the work has none', () {
+      final detail = const WorkDto(
+        key: '/works/OL1W',
+        title: 'Dune',
+        description: null,
+        subjects: [],
+        coverId: null,
+      ).toDomain(fallbackCoverId: 999);
+      expect(detail.coverId, 999);
+    });
   });
 }

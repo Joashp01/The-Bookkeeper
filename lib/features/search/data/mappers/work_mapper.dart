@@ -3,13 +3,15 @@ import '../dtos/work_dto.dart';
 
 /// Maps a [WorkDto] onto the [BookDetail] domain model.
 ///
-/// The works endpoint does not return author names or the publication year, so
-/// those are threaded through from the originating search [Book] via
-/// [toDomain]'s parameters (defaulting to empty/absent when unavailable).
+/// The works endpoint does not return author names or the publication year, and
+/// may omit a cover, so those are threaded through from the originating search
+/// [Book] via [toDomain]'s parameters ([fallbackCoverId] is used only when the
+/// work itself has no cover).
 extension WorkDtoMapper on WorkDto {
   BookDetail toDomain({
     List<String> authorNames = const [],
     int? firstPublishYear,
+    int? fallbackCoverId,
   }) {
     final safeTitle = (title == null || title!.isEmpty) ? 'Untitled' : title!;
     return BookDetail(
@@ -18,7 +20,7 @@ extension WorkDtoMapper on WorkDto {
       authorNames: authorNames,
       subjects: subjects,
       description: description,
-      coverId: coverId,
+      coverId: coverId ?? fallbackCoverId,
       firstPublishYear: firstPublishYear,
     );
   }
