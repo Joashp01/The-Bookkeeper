@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../shared/cover_image.dart';
+import '../../../favourites/presentation/widgets/favourite_button.dart';
 import '../../domain/models/book.dart';
 import '../../domain/models/book_detail.dart';
 import '../../domain/repositories/book_detail_repository.dart';
@@ -55,7 +56,10 @@ class _DetailScreenState extends State<DetailScreen> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        actions: [FavouriteButton(book: viewModel.book)],
+      ),
       body: switch (state) {
         DetailLoading() => const Center(child: CircularProgressIndicator()),
         DetailError(:final message) => _ErrorView(message: message),

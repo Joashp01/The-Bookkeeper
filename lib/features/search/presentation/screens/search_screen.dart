@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../favourites/presentation/screens/favourites_screen.dart';
+import '../../../favourites/presentation/widgets/favourite_button.dart';
 import '../viewmodels/search_state.dart';
 import '../viewmodels/search_view_model.dart';
 import '../widgets/book_tile.dart';
@@ -46,7 +48,20 @@ class _SearchScreenState extends State<SearchScreen> {
     final viewModel = context.watch<SearchViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('The Bookkeeper')),
+      appBar: AppBar(
+        title: const Text('The Bookkeeper'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            tooltip: 'Favourites',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const FavouritesScreen(),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -103,6 +118,7 @@ class _StateView extends StatelessWidget {
             final book = books[index];
             return BookTile(
               book: book,
+              trailing: FavouriteButton(book: book),
               onTap: () => openBookDetail(context, book),
             );
           },

@@ -12,10 +12,12 @@ class BookTile extends StatelessWidget {
     super.key,
     required this.book,
     this.onTap,
+    this.trailing,
   });
 
   final Book book;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,7 @@ class BookTile extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
+      trailing: trailing,
     );
   }
 }
