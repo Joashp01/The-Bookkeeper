@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:bookshelf/core/error/failure.dart';
 import 'package:bookshelf/core/error/result.dart';
+import 'package:bookshelf/features/favourites/domain/repositories/favourites_repository.dart';
+import 'package:bookshelf/features/favourites/presentation/viewmodels/favourites_view_model.dart';
 import 'package:bookshelf/features/search/domain/models/book.dart';
 import 'package:bookshelf/features/search/domain/models/search_result.dart';
 import 'package:bookshelf/features/search/domain/repositories/search_repository.dart';
@@ -25,12 +27,29 @@ class _FakeRepo implements SearchRepository {
       responder(query, page);
 }
 
+class _NoopFavouritesRepository implements FavouritesRepository {
+  @override
+  Future<List<Book>> getFavourites() async => const [];
+
+  @override
+  Future<void> addFavourite(Book book) async {}
+
+  @override
+  Future<void> removeFavourite(String key) async {}
+}
+
 Book _book(String title) =>
     Book(key: '/works/$title', title: title, authorNames: const ['A'], firstPublishYear: 2000);
 
 Widget _wrap(SearchViewModel viewModel) {
-  return ChangeNotifierProvider<SearchViewModel>.value(
-    value: viewModel,
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<SearchViewModel>.value(value: viewModel),
+      ChangeNotifierProvider<FavouritesViewModel>(
+        create: (_) =>
+            FavouritesViewModel(repository: _NoopFavouritesRepository()),
+      ),
+    ],
     child: const MaterialApp(home: SearchScreen()),
   );
 }
