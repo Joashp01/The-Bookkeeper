@@ -14,25 +14,59 @@ const String columnAuthors = 'authors';
 const String columnCoverId = 'cover_id';
 const String columnFirstPublishYear = 'first_publish_year';
 
-const int databaseVersion = 1;
+/// Cache of the most recent search results, keyed by (query, page) so an offline
+/// repeat of a previous search can be served from storage (F4).
+const String searchCacheTable = 'search_cache';
 
-/// Creates the schema. Passed as `onCreate` to whichever database factory opens
-/// the database (sqflite on device, sqflite_common_ffi in tests).
+const String columnQuery = 'query';
+const String columnPage = 'page';
+const String columnNumFound = 'num_found';
+const String columnBooks = 'books';
+
+/// Bumped to 2 when the search cache table was introduced.
+const int databaseVersion = 2;
+
+/// Creates the full schema on a fresh database.
 Future<void> createSchema(Database db, int version) async {
-  await db.execute('''
-    CREATE TABLE $favouritesTable (
-      $columnKey TEXT PRIMARY KEY,
-      $columnTitle TEXT NOT NULL,
-      $columnAuthors TEXT NOT NULL,
-      $columnCoverId INTEGER,
-      $columnFirstPublishYear INTEGER
-    )
-  ''');
+  await _createFavourites(db);
+  await _createSearchCache(db);
 }
 
-/// Opens (creating if needed) the on-device database.
+/// Applies incremental migrations for existing installs.
+Future<void> upgradeSchema(Database db, int oldVersion, int newVersion) async {
+  if (oldVersion < 2) {
+    await _createSearchCache(db);
+  }
+}
+
+Future<void> _createFavourites(Database db) => db.execute('''
+      CREATE TABLE $favouritesTable (
+        $columnKey TEXT PRIMARY KEY,
+        $columnTitle TEXT NOT NULL,
+        $columnAuthors TEXT NOT NULL,
+        $columnCoverId INTEGER,
+        $columnFirstPublishYear INTEGER
+      )
+    ''');
+
+Future<void> _createSearchCache(Database db) => db.execute('''
+      CREATE TABLE $searchCacheTable (
+        $columnQuery TEXT NOT NULL,
+        $columnPage INTEGER NOT NULL,
+        $columnNumFound INTEGER NOT NULL,
+        $columnBooks TEXT NOT NULL,
+        PRIMARY KEY ($columnQuery, $columnPage)
+      )
+    ''');
+
+/// Opens (creating/upgrading if needed) the on-device database.
 Future<Database> openAppDatabase() async {
   final databasesPath = await getDatabasesPath();
   final path = p.join(databasesPath, 'the_bookkeeper.db');
-  return openDatabase(path, version: databaseVersion, onCreate: createSchema);
+  return openDatabase(
+    path,
+    version: databaseVersion,
+    onCreate: createSchema,
+    onUpgrade: upgradeSchema,
+  );
 }

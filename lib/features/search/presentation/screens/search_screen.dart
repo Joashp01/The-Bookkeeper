@@ -105,25 +105,60 @@ class _StateView extends StatelessWidget {
           message: 'No results found.',
         ),
       SearchError(:final message) => _ErrorView(message: message),
-      SearchResults(:final books, :final isLoadingMore) => ListView.builder(
-          controller: scrollController,
-          itemCount: books.length + (isLoadingMore ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index >= books.length) {
-              return const Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            final book = books[index];
-            return BookTile(
-              book: book,
-              trailing: FavouriteButton(book: book),
-              onTap: () => openBookDetail(context, book),
-            );
-          },
+      SearchResults(:final books, :final isLoadingMore, :final isOffline) =>
+        Column(
+          children: [
+            if (isOffline) const _OfflineBanner(),
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: books.length + (isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index >= books.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  final book = books[index];
+                  return BookTile(
+                    book: book,
+                    trailing: FavouriteButton(book: book),
+                    onTap: () => openBookDetail(context, book),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
     };
+  }
+}
+
+/// Clear indicator shown above cached results when the device is offline (F4).
+class _OfflineBanner extends StatelessWidget {
+  const _OfflineBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      color: scheme.tertiaryContainer,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Icon(Icons.cloud_off, size: 18, color: scheme.onTertiaryContainer),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Offline — showing cached results.',
+              style: TextStyle(color: scheme.onTertiaryContainer),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
