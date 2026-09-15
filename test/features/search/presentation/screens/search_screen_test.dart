@@ -136,4 +136,26 @@ void main() {
     expect(find.text('Network unavailable'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Retry'), findsOneWidget);
   });
+
+  testWidgets('offline results show the offline banner above the list',
+      (tester) async {
+    final vm = SearchViewModel(
+      repository: _FakeRepo((_, _) async => Success(
+            SearchResult(
+              books: [_book('Dune')],
+              numFound: 1,
+              page: 1,
+              isOffline: true,
+            ),
+          )),
+      debounceDuration: Duration.zero,
+    );
+
+    await tester.pumpWidget(_wrap(vm));
+    await _search(tester, 'dune');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Offline — showing cached results.'), findsOneWidget);
+    expect(find.byType(BookTile), findsOneWidget);
+  });
 }

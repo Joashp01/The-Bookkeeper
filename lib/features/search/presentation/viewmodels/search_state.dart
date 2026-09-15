@@ -48,12 +48,16 @@ class SearchResults extends SearchState {
     required this.books,
     required this.hasMore,
     this.isLoadingMore = false,
+    this.isOffline = false,
   });
 
   final List<Book> books;
   final bool hasMore;
   final bool isLoadingMore;
 
+  /// True when these results came from the local cache (F4).
+  final bool isOffline;
+
   @override
-  List<Object?> get props => [books, hasMore, isLoadingMore];
+  List<Object?> get props => [books, hasMore, isLoadingMore, isOffline];
 }

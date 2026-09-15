@@ -29,6 +29,7 @@ class SearchViewModel extends ChangeNotifier {
   int _page = 1;
   int _numFound = 0;
   bool _isLoadingMore = false;
+  bool _isOffline = false;
   final List<Book> _books = [];
 
   SearchState _state = const SearchInitial();
@@ -60,6 +61,7 @@ class SearchViewModel extends ChangeNotifier {
     result.when(
       success: (page) {
         _numFound = page.numFound;
+        _isOffline = page.isOffline;
         _books
           ..clear()
           ..addAll(page.books);
@@ -89,6 +91,7 @@ class SearchViewModel extends ChangeNotifier {
       success: (page) {
         _page = nextPage;
         _numFound = page.numFound;
+        _isOffline = page.isOffline;
         _books.addAll(page.books);
         _setState(_resultsState());
       },
@@ -108,12 +111,14 @@ class SearchViewModel extends ChangeNotifier {
         books: List.unmodifiable(_books),
         hasMore: _hasMore,
         isLoadingMore: _isLoadingMore,
+        isOffline: _isOffline,
       );
 
   void _resetPaging() {
     _page = 1;
     _numFound = 0;
     _isLoadingMore = false;
+    _isOffline = false;
     _books.clear();
   }
 

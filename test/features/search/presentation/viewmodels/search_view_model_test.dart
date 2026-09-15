@@ -125,6 +125,26 @@ void main() {
     });
   });
 
+  test('propagates the offline flag from a cached (offline) result', () {
+    fakeAsync((async) {
+      final repo = _FakeRepo()
+        ..responder = (query, page) => Success(
+              SearchResult(
+                books: [_book('a')],
+                numFound: 1,
+                page: page,
+                isOffline: true,
+              ),
+            );
+      final vm = SearchViewModel(repository: repo, debounceDuration: Duration.zero);
+
+      vm.onQueryChanged('dune');
+      _settle(async);
+
+      expect((vm.state as SearchResults).isOffline, isTrue);
+    });
+  });
+
   test('loadNextPage appends the next page and updates hasMore', () {
     fakeAsync((async) {
       final repo = _FakeRepo()

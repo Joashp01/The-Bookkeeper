@@ -8,12 +8,14 @@ import '../../features/favourites/data/repositories/favourites_repository_impl.d
 import '../../features/favourites/domain/repositories/favourites_repository.dart';
 import '../../features/favourites/presentation/viewmodels/favourites_view_model.dart';
 import '../../features/search/data/datasources/book_detail_remote_data_source.dart';
+import '../../features/search/data/datasources/search_cache_data_source.dart';
 import '../../features/search/data/datasources/search_remote_data_source.dart';
 import '../../features/search/data/repositories/book_detail_repository_impl.dart';
 import '../../features/search/data/repositories/search_repository_impl.dart';
 import '../../features/search/domain/repositories/book_detail_repository.dart';
 import '../../features/search/domain/repositories/search_repository.dart';
 import '../../features/search/presentation/viewmodels/search_view_model.dart';
+import '../network/connectivity_checker.dart';
 
 /// Composition root.
 ///
@@ -32,6 +34,8 @@ List<SingleChildWidget> buildProviders(Database database) => [
           remoteDataSource: SearchRemoteDataSourceImpl(
             client: context.read<http.Client>(),
           ),
+          cache: SearchCacheDataSourceImpl(database: database),
+          connectivity: ConnectivityCheckerImpl(),
         ),
       ),
       Provider<BookDetailRepository>(
