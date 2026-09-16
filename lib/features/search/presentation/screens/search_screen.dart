@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/responsive_center.dart';
 import '../../../favourites/presentation/screens/favourites_screen.dart';
 import '../../../favourites/presentation/widgets/favourite_button.dart';
 import '../viewmodels/search_state.dart';
@@ -55,30 +56,35 @@ class _SearchScreenState extends State<SearchScreen> {
             icon: const Icon(Icons.favorite),
             tooltip: 'Favourites',
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const FavouritesScreen(),
-              ),
+              MaterialPageRoute<void>(builder: (_) => const FavouritesScreen()),
             ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Search books',
-                hintText: 'Title, author, subject…',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+      body: ResponsiveCenter(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: TextField(
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Search books',
+                  hintText: 'Title, author, subject…',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: context.read<SearchViewModel>().onQueryChanged,
               ),
-              onChanged: context.read<SearchViewModel>().onQueryChanged,
             ),
-          ),
-          Expanded(child: _StateView(state: viewModel.state, scrollController: _scrollController)),
-        ],
+            Expanded(
+              child: _StateView(
+                state: viewModel.state,
+                scrollController: _scrollController,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -96,14 +102,14 @@ class _StateView extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (state) {
       SearchInitial() => const _Centered(
-          icon: Icons.search,
-          message: 'Search for a book to get started.',
-        ),
+        icon: Icons.search,
+        message: 'Search for a book to get started.',
+      ),
       SearchLoading() => const Center(child: CircularProgressIndicator()),
       SearchEmpty() => const _Centered(
-          icon: Icons.sentiment_dissatisfied,
-          message: 'No results found.',
-        ),
+        icon: Icons.sentiment_dissatisfied,
+        message: 'No results found.',
+      ),
       SearchError(:final message) => _ErrorView(message: message),
       SearchResults(:final books, :final isLoadingMore, :final isOffline) =>
         Column(

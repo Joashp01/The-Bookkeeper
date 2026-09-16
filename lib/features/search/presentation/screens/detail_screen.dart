@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../shared/cover_image.dart';
+import '../../../../shared/responsive_center.dart';
 import '../../../favourites/presentation/widgets/favourite_button.dart';
 import '../../domain/models/book.dart';
 import '../../domain/models/book_detail.dart';
@@ -60,11 +61,13 @@ class _DetailScreenState extends State<DetailScreen> {
         title: Text(title),
         actions: [FavouriteButton(book: viewModel.book)],
       ),
-      body: switch (state) {
-        DetailLoading() => const Center(child: CircularProgressIndicator()),
-        DetailError(:final message) => _ErrorView(message: message),
-        DetailLoaded(:final detail) => _DetailBody(detail: detail),
-      },
+      body: ResponsiveCenter(
+        child: switch (state) {
+          DetailLoading() => const Center(child: CircularProgressIndicator()),
+          DetailError(:final message) => _ErrorView(message: message),
+          DetailLoaded(:final detail) => _DetailBody(detail: detail),
+        },
+      ),
     );
   }
 }
@@ -92,7 +95,10 @@ class _DetailBody extends StatelessWidget {
         const SizedBox(height: 8),
         Text(detail.authorDisplay, style: textTheme.titleMedium),
         const SizedBox(height: 4),
-        Text('First published: ${detail.yearDisplay}', style: textTheme.bodyMedium),
+        Text(
+          'First published: ${detail.yearDisplay}',
+          style: textTheme.bodyMedium,
+        ),
         if (detail.subjects.isNotEmpty) ...[
           const SizedBox(height: 16),
           Text('Subjects', style: textTheme.titleSmall),

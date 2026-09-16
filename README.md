@@ -18,10 +18,12 @@ Assumes a clean machine.
 git clone <repo-url>
 cd The-Bookkeeper
 flutter pub get
-flutter run          # select an Android or iOS device/emulator
+flutter run                 # select an Android or iOS device/emulator
+flutter run -d chrome       # or run the web build
+flutter build web           # produce a release web bundle in build/web
 ```
 
-**Supported platforms:** Android and iOS. Web/desktop are not wired up yet — see [Limitations](#6-limitations).
+**Supported platforms:** Android, iOS, and **web**. On web, persistence uses sqlite compiled to WebAssembly (`sqflite_common_ffi_web`); the required `web/sqflite_sw.js` and `web/sqlite3.wasm` are vendored in the repo, so a clean checkout builds without extra steps. Desktop is not wired up — see [Limitations](#6-limitations).
 
 **Run the tests:**
 ```bash
@@ -123,8 +125,8 @@ Every line was reviewed, run, and is code I can explain and extend. AI was a pai
 
 What I'd do with more time, and what I know is weak:
 
-- **No web/desktop build yet.** `sqflite` doesn't run on web; supporting it means adding `sqflite_common_ffi_web` and initialising the web database factory in `main` (and `sqflite_common_ffi` for desktop). Mobile is the working target.
-- **No CI pipeline.** A GitHub Actions workflow running `flutter analyze` + `flutter test` on every push is the natural next step (a listed bonus).
+- **Desktop not wired up.** Web works (sqlite via WebAssembly), but the native database opener uses the default sqflite factory, so a desktop target would additionally need `sqflite_common_ffi` initialised in `main`. Only Android/iOS/web platforms are set up.
+- **Web persistence caveat.** Favourites/cache on web live in the browser (IndexedDB-backed worker); they're per-browser and cleared if the user clears site data.
 - **Offline detection is heuristic.** A transport-level failure plus a connectivity check triggers the cache fallback; it does not distinguish every possible network condition, and there is no background revalidation of stale cache.
 - **Pagination** assumes Open Library's default page size and uses `numFound` vs. accumulated results to decide `hasMore`; it doesn't guard against the API reporting an inconsistent `numFound`.
 - **Detail author/year** are threaded from the originating search result because the works endpoint returns author *keys*, not names; resolving author records would need extra requests.

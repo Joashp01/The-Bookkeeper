@@ -1,5 +1,9 @@
-import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+
+// Selects the native (sqflite) opener on mobile/desktop and the WebAssembly
+// (sqflite_common_ffi_web) opener on web, so the same schema runs on all targets.
+import 'database_opener_native.dart'
+    if (dart.library.js_interop) 'database_opener_web.dart';
 
 /// Central definition of the local SQL database: table/column names, the schema
 /// creation used by both the real app and tests, and the production opener.
@@ -59,14 +63,9 @@ Future<void> _createSearchCache(Database db) => db.execute('''
       )
     ''');
 
-/// Opens (creating/upgrading if needed) the on-device database.
-Future<Database> openAppDatabase() async {
-  final databasesPath = await getDatabasesPath();
-  final path = p.join(databasesPath, 'the_bookkeeper.db');
-  return openDatabase(
-    path,
-    version: databaseVersion,
-    onCreate: createSchema,
-    onUpgrade: upgradeSchema,
-  );
-}
+/// Opens (creating/upgrading if needed) the database for the current platform.
+Future<Database> openAppDatabase() => openDatabaseForPlatform(
+      version: databaseVersion,
+      onCreate: createSchema,
+      onUpgrade: upgradeSchema,
+    );
