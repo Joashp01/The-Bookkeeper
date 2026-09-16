@@ -16,6 +16,7 @@ import '../../features/search/domain/repositories/book_detail_repository.dart';
 import '../../features/search/domain/repositories/search_repository.dart';
 import '../../features/search/presentation/viewmodels/search_view_model.dart';
 import '../network/connectivity_checker.dart';
+import '../network/connectivity_view_model.dart';
 import '../theme/theme_preference_store.dart';
 import '../theme/theme_view_model.dart';
 
@@ -31,13 +32,18 @@ List<SingleChildWidget> buildProviders(Database database) => [
         create: (_) => http.Client(),
         dispose: (_, client) => client.close(),
       ),
+      // Shared so the repository's offline fallback and the app-wide offline
+      // banner observe the same connectivity source.
+      Provider<ConnectivityChecker>(
+        create: (_) => ConnectivityCheckerImpl(),
+      ),
       Provider<SearchRepository>(
         create: (context) => SearchRepositoryImpl(
           remoteDataSource: SearchRemoteDataSourceImpl(
             client: context.read<http.Client>(),
           ),
           cache: SearchCacheDataSourceImpl(database: database),
-          connectivity: ConnectivityCheckerImpl(),
+          connectivity: context.read<ConnectivityChecker>(),
         ),
       ),
       Provider<BookDetailRepository>(
@@ -63,6 +69,16 @@ List<SingleChildWidget> buildProviders(Database database) => [
           );
           // Defer so the initial load's notifyListeners never fires during build.
           Future.microtask(viewModel.load);
+          return viewModel;
+        },
+      ),
+      ChangeNotifierProvider<ConnectivityViewModel>(
+        create: (context) {
+          final viewModel = ConnectivityViewModel(
+            checker: context.read<ConnectivityChecker>(),
+          );
+          // Defer so the initial connectivity check doesn't notify during build.
+          Future.microtask(viewModel.start);
           return viewModel;
         },
       ),

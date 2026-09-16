@@ -29,7 +29,7 @@ class SearchEmpty extends SearchState {
   const SearchEmpty();
 }
 
-/// The request failed; [message] is safe to show to the user.
+/// The request failed; [message] is friendly, user-safe copy to display.
 class SearchError extends SearchState {
   const SearchError(this.message);
 

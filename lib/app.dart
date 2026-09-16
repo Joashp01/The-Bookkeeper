@@ -6,6 +6,7 @@ import 'core/di/app_providers.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_view_model.dart';
 import 'features/search/presentation/screens/search_screen.dart';
+import 'shared/offline_banner.dart';
 
 /// Root widget. Installs the dependency graph (composition root) above the
 /// [MaterialApp] and configures light/dark theming. It holds no business logic.
@@ -30,6 +31,9 @@ class BookshelfApp extends StatelessWidget {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: themeViewModel.themeMode,
+          // Wrap every route so the offline indicator is evident on any screen.
+          builder: (context, child) =>
+              OfflineBanner(child: child ?? const SizedBox.shrink()),
           home: const SearchScreen(),
         ),
       ),

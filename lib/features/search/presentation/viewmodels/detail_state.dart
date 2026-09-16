@@ -23,6 +23,7 @@ class DetailLoaded extends DetailState {
   List<Object?> get props => [detail];
 }
 
+/// The detail load failed; [message] is friendly, user-safe copy to display.
 class DetailError extends DetailState {
   const DetailError(this.message);
 

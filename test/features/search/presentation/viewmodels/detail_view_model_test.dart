@@ -66,6 +66,9 @@ void main() {
     await vm.load();
 
     expect(vm.state, isA<DetailError>());
-    expect((vm.state as DetailError).message, 'boom');
+    final error = vm.state as DetailError;
+    // Friendly copy is shown, not the raw exception text.
+    expect(error.message, isNot(contains('boom')));
+    expect(error.message, isNotEmpty);
   });
 }

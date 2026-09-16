@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/error/failure_messages.dart';
 import '../../domain/models/book.dart';
 import '../../domain/repositories/book_detail_repository.dart';
 import 'detail_state.dart';
@@ -27,7 +28,7 @@ class DetailViewModel extends ChangeNotifier {
     final result = await _repository.getDetail(book);
     result.when(
       success: (detail) => _setState(DetailLoaded(detail)),
-      failure: (failure) => _setState(DetailError(failure.message)),
+      failure: (failure) => _setState(DetailError(messageForFailure(failure))),
     );
   }
 
