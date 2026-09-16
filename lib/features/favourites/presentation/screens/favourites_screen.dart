@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/responsive_center.dart';
 import '../../../search/presentation/screens/detail_screen.dart';
 import '../../../search/presentation/widgets/book_tile.dart';
 import '../viewmodels/favourites_view_model.dart';
@@ -19,26 +20,28 @@ class FavouritesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Favourites')),
-      body: Builder(
-        builder: (context) {
-          if (viewModel.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (favourites.isEmpty) {
-            return const _EmptyFavourites();
-          }
-          return ListView.builder(
-            itemCount: favourites.length,
-            itemBuilder: (context, index) {
-              final book = favourites[index];
-              return BookTile(
-                book: book,
-                trailing: FavouriteButton(book: book),
-                onTap: () => openBookDetail(context, book),
-              );
-            },
-          );
-        },
+      body: ResponsiveCenter(
+        child: Builder(
+          builder: (context) {
+            if (viewModel.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (favourites.isEmpty) {
+              return const _EmptyFavourites();
+            }
+            return ListView.builder(
+              itemCount: favourites.length,
+              itemBuilder: (context, index) {
+                final book = favourites[index];
+                return BookTile(
+                  book: book,
+                  trailing: FavouriteButton(book: book),
+                  onTap: () => openBookDetail(context, book),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
