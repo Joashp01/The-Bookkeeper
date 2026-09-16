@@ -87,11 +87,19 @@ class _DetailBody extends StatelessWidget {
         Center(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: CoverImage(url: detail.coverUrl, width: 160, height: 240),
+            child: CoverImage(
+              url: detail.coverUrl,
+              width: 160,
+              height: 240,
+              semanticLabel: 'Cover of ${detail.title}',
+            ),
           ),
         ),
         const SizedBox(height: 20),
-        Text(detail.title, style: textTheme.headlineSmall),
+        Semantics(
+          header: true,
+          child: Text(detail.title, style: textTheme.headlineSmall),
+        ),
         const SizedBox(height: 8),
         Text(detail.authorDisplay, style: textTheme.titleMedium),
         const SizedBox(height: 4),
@@ -101,7 +109,10 @@ class _DetailBody extends StatelessWidget {
         ),
         if (detail.subjects.isNotEmpty) ...[
           const SizedBox(height: 16),
-          Text('Subjects', style: textTheme.titleSmall),
+          Semantics(
+            header: true,
+            child: Text('Subjects', style: textTheme.titleSmall),
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -113,7 +124,10 @@ class _DetailBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 16),
-        Text('Description', style: textTheme.titleSmall),
+        Semantics(
+          header: true,
+          child: Text('Description', style: textTheme.titleSmall),
+        ),
         const SizedBox(height: 8),
         Text(detail.descriptionDisplay, style: textTheme.bodyLarge),
       ],

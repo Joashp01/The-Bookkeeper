@@ -23,16 +23,26 @@ class BookTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
+      // The cover is decorative here — the title/author text already names the
+      // book — so CoverImage is left unlabelled and hidden from screen readers.
       leading: SizedBox(
         width: 40,
         height: 56,
         child: CoverImage(url: book.coverUrl, width: 40, height: 56),
       ),
       title: Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-      subtitle: Text(
-        '${book.authorDisplay} · ${book.yearDisplay}',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      // ListTile merges title + subtitle into one tappable node. The visible
+      // "·"-separated line reads awkwardly aloud, so we hand the screen reader a
+      // natural-language label and hide the decorative visual text from it.
+      subtitle: Semantics(
+        label: '${book.authorDisplay}, published ${book.yearDisplay}',
+        child: ExcludeSemantics(
+          child: Text(
+            '${book.authorDisplay} · ${book.yearDisplay}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ),
       trailing: trailing,
     );
