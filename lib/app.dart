@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 
 import 'core/di/app_providers.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_view_model.dart';
 import 'features/search/presentation/screens/search_screen.dart';
 
 /// Root widget. Installs the dependency graph (composition root) above the
@@ -20,13 +21,17 @@ class BookshelfApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: buildProviders(database),
-      child: MaterialApp(
-        title: 'The Bookkeeper',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.system,
-        home: const SearchScreen(),
+      // The theme choice lives in a provided ViewModel, so the MaterialApp is
+      // built under the provider scope and rebuilds when the mode changes.
+      child: Consumer<ThemeViewModel>(
+        builder: (context, themeViewModel, _) => MaterialApp(
+          title: 'The Bookkeeper',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: themeViewModel.themeMode,
+          home: const SearchScreen(),
+        ),
       ),
     );
   }

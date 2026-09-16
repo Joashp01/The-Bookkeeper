@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/theme/theme_view_model.dart';
 import '../../../../shared/responsive_center.dart';
 import '../../../favourites/presentation/screens/favourites_screen.dart';
 import '../../../favourites/presentation/widgets/favourite_button.dart';
@@ -52,6 +53,7 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         title: const Text('The Bookkeeper'),
         actions: [
+          const _ThemeToggleButton(),
           IconButton(
             icon: const Icon(Icons.favorite),
             tooltip: 'Favourites',
@@ -86,6 +88,28 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// App-bar action that cycles the theme (system → light → dark) via the
+/// [ThemeViewModel]. The icon reflects the current mode and its tooltip
+/// doubles as the semantic label for screen readers.
+class _ThemeToggleButton extends StatelessWidget {
+  const _ThemeToggleButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final mode = context.watch<ThemeViewModel>().themeMode;
+    final (icon, label) = switch (mode) {
+      ThemeMode.system => (Icons.brightness_auto, 'Theme: follow system'),
+      ThemeMode.light => (Icons.light_mode, 'Theme: light'),
+      ThemeMode.dark => (Icons.dark_mode, 'Theme: dark'),
+    };
+    return IconButton(
+      icon: Icon(icon),
+      tooltip: label,
+      onPressed: () => context.read<ThemeViewModel>().cycle(),
     );
   }
 }
