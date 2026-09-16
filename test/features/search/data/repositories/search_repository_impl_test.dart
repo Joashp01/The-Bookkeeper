@@ -40,6 +40,9 @@ class _FakeConnectivity implements ConnectivityChecker {
 
   @override
   Future<bool> hasConnection() async => online;
+
+  @override
+  Stream<bool> get onConnectivityChanged => Stream<bool>.value(online);
 }
 
 void main() {

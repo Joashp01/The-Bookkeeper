@@ -110,7 +110,7 @@ void main() {
     });
   });
 
-  test('a failure transitions to SearchError carrying the message', () {
+  test('a failure transitions to SearchError with friendly copy', () {
     fakeAsync((async) {
       final repo = _FakeRepo()
         ..responder = (query, page) =>
@@ -121,7 +121,10 @@ void main() {
       _settle(async);
 
       expect(vm.state, isA<SearchError>());
-      expect((vm.state as SearchError).message, 'boom');
+      final error = vm.state as SearchError;
+      // The raw technical message is not shown to the user; friendly copy is.
+      expect(error.message, isNot(contains('boom')));
+      expect(error.message, isNotEmpty);
     });
   });
 

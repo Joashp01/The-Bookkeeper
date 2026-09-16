@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/error/failure_messages.dart';
 import '../../domain/models/book.dart';
 import '../../domain/repositories/search_repository.dart';
 import 'search_state.dart';
@@ -67,7 +68,7 @@ class SearchViewModel extends ChangeNotifier {
           ..addAll(page.books);
         _setState(_books.isEmpty ? const SearchEmpty() : _resultsState());
       },
-      failure: (failure) => _setState(SearchError(failure.message)),
+      failure: (failure) => _setState(SearchError(messageForFailure(failure))),
     );
   }
 

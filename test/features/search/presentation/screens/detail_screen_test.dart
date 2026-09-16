@@ -96,7 +96,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Could not load this book.'), findsOneWidget);
-    expect(find.text('Network unavailable'), findsOneWidget);
+    // The raw technical message is never shown; friendly copy is.
+    expect(find.text('Network unavailable'), findsNothing);
+    expect(
+      find.textContaining('The book service is having trouble'),
+      findsOneWidget,
+    );
     expect(find.widgetWithText(FilledButton, 'Retry'), findsOneWidget);
   });
 }
