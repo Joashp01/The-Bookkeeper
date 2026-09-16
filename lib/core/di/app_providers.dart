@@ -16,6 +16,8 @@ import '../../features/search/domain/repositories/book_detail_repository.dart';
 import '../../features/search/domain/repositories/search_repository.dart';
 import '../../features/search/presentation/viewmodels/search_view_model.dart';
 import '../network/connectivity_checker.dart';
+import '../theme/theme_preference_store.dart';
+import '../theme/theme_view_model.dart';
 
 /// Composition root.
 ///
@@ -60,6 +62,16 @@ List<SingleChildWidget> buildProviders(Database database) => [
             repository: context.read<FavouritesRepository>(),
           );
           // Defer so the initial load's notifyListeners never fires during build.
+          Future.microtask(viewModel.load);
+          return viewModel;
+        },
+      ),
+      ChangeNotifierProvider<ThemeViewModel>(
+        create: (_) {
+          final viewModel = ThemeViewModel(
+            store: ThemePreferenceStoreImpl(database: database),
+          );
+          // Defer so restoring the saved theme doesn't notify during build.
           Future.microtask(viewModel.load);
           return viewModel;
         },

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:bookshelf/core/error/failure.dart';
 import 'package:bookshelf/core/error/result.dart';
+import 'package:bookshelf/core/theme/theme_preference_store.dart';
+import 'package:bookshelf/core/theme/theme_view_model.dart';
 import 'package:bookshelf/features/favourites/domain/repositories/favourites_repository.dart';
 import 'package:bookshelf/features/favourites/presentation/viewmodels/favourites_view_model.dart';
 import 'package:bookshelf/features/search/domain/models/book.dart';
@@ -38,6 +40,16 @@ class _NoopFavouritesRepository implements FavouritesRepository {
   Future<void> removeFavourite(String key) async {}
 }
 
+class _InMemoryThemeStore implements ThemePreferenceStore {
+  String? value;
+
+  @override
+  Future<String?> read() async => value;
+
+  @override
+  Future<void> write(String value) async => this.value = value;
+}
+
 Book _book(String title) =>
     Book(key: '/works/$title', title: title, authorNames: const ['A'], firstPublishYear: 2000);
 
@@ -48,6 +60,9 @@ Widget _wrap(SearchViewModel viewModel) {
       ChangeNotifierProvider<FavouritesViewModel>(
         create: (_) =>
             FavouritesViewModel(repository: _NoopFavouritesRepository()),
+      ),
+      ChangeNotifierProvider<ThemeViewModel>(
+        create: (_) => ThemeViewModel(store: _InMemoryThemeStore()),
       ),
     ],
     child: const MaterialApp(home: SearchScreen()),

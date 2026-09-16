@@ -27,19 +27,30 @@ const String columnPage = 'page';
 const String columnNumFound = 'num_found';
 const String columnBooks = 'books';
 
-/// Bumped to 2 when the search cache table was introduced.
-const int databaseVersion = 2;
+/// Simple key/value store for user preferences (e.g. the chosen theme mode).
+/// One row per setting, keyed by [columnSettingKey].
+const String settingsTable = 'settings';
+
+const String columnSettingKey = 'key';
+const String columnSettingValue = 'value';
+
+/// Bumped to 3 when the settings table was introduced (2 added the cache).
+const int databaseVersion = 3;
 
 /// Creates the full schema on a fresh database.
 Future<void> createSchema(Database db, int version) async {
   await _createFavourites(db);
   await _createSearchCache(db);
+  await _createSettings(db);
 }
 
 /// Applies incremental migrations for existing installs.
 Future<void> upgradeSchema(Database db, int oldVersion, int newVersion) async {
   if (oldVersion < 2) {
     await _createSearchCache(db);
+  }
+  if (oldVersion < 3) {
+    await _createSettings(db);
   }
 }
 
@@ -60,6 +71,13 @@ Future<void> _createSearchCache(Database db) => db.execute('''
         $columnNumFound INTEGER NOT NULL,
         $columnBooks TEXT NOT NULL,
         PRIMARY KEY ($columnQuery, $columnPage)
+      )
+    ''');
+
+Future<void> _createSettings(Database db) => db.execute('''
+      CREATE TABLE $settingsTable (
+        $columnSettingKey TEXT PRIMARY KEY,
+        $columnSettingValue TEXT NOT NULL
       )
     ''');
 
