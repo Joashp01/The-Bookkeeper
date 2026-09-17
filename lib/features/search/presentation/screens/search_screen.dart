@@ -146,6 +146,10 @@ class _StateView extends StatelessWidget {
         message:
             'Keep typing — enter at least $minLength characters to search.',
       ),
+      SearchUnsupportedQuery(:final message) => _Centered(
+        icon: Icons.search_off,
+        message: message,
+      ),
       SearchLoading() => const Center(child: CircularProgressIndicator()),
       SearchEmpty() => const _Centered(
         icon: Icons.sentiment_dissatisfied,

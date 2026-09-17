@@ -191,6 +191,26 @@ void main() {
     });
   });
 
+  test('a 4xx (rejected query) shows a refine prompt, not the error card', () {
+    fakeAsync((async) {
+   
+      final repo = _FakeRepo()
+        ..responder = (query, page) =>
+            const FailureResult(ServerFailure('invalid query', statusCode: 422));
+      final vm = SearchViewModel(
+        repository: repo,
+        debounceDuration: Duration.zero,
+      );
+
+      vm.onQueryChanged('the');
+      _settle(async);
+
+      expect(vm.state, isA<SearchUnsupportedQuery>());
+      expect(vm.state, isNot(isA<SearchError>()));
+      expect((vm.state as SearchUnsupportedQuery).message, isNotEmpty);
+    });
+  });
+
   test('propagates the offline flag from a cached (offline) result', () {
     fakeAsync((async) {
       final repo = _FakeRepo()
