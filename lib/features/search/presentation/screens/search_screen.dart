@@ -51,7 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('The Bookkeeper'),
+        title: const _BrandTitle(),
         actions: [
           const _ThemeToggleButton(),
           IconButton(
@@ -67,14 +67,13 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
               child: TextField(
                 autofocus: true,
+                textInputAction: TextInputAction.search,
                 decoration: const InputDecoration(
-                  labelText: 'Search books',
-                  hintText: 'Title, author, subject…',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
+                  hintText: 'Search by title, author or subject',
+                  prefixIcon: Icon(Icons.search_rounded),
                 ),
                 onChanged: context.read<SearchViewModel>().onQueryChanged,
               ),
@@ -88,6 +87,29 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Branded app-bar title: a book mark in the primary accent colour alongside
+/// the app name, so "The Bookkeeper" stands out from the surface app bar.
+class _BrandTitle extends StatelessWidget {
+  const _BrandTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.auto_stories_rounded, color: primary, size: 24),
+        const SizedBox(width: 8),
+        Text(
+          'The Bookkeeper',
+          style: theme.appBarTheme.titleTextStyle?.copyWith(color: primary),
+        ),
+      ],
     );
   }
 }
@@ -204,14 +226,29 @@ class _Centered extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 48, color: Theme.of(context).colorScheme.outline),
-          const SizedBox(height: 12),
-          Text(message, textAlign: TextAlign.center),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHighest,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 40, color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }
