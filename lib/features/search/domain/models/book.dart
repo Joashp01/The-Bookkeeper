@@ -32,9 +32,11 @@ class Book extends Equatable {
   /// First publication year, or the fallback when it was absent.
   String get yearDisplay => firstPublishYear?.toString() ?? unknownYear;
 
-  /// Cover image URL, or `null` when `cover_i` was absent (UI shows a
-  /// placeholder in that case).
-  String? get coverUrl => coverId == null
+  /// Cover image URL, or `null` when there is no usable cover (UI shows a
+  /// placeholder in that case). Open Library omits `cover_i` for ~15% of results
+  /// and also uses non-positive ids (e.g. `-1`) as a "no cover" sentinel, so we
+  /// treat anything not strictly positive as absent to avoid a wasted 404.
+  String? get coverUrl => (coverId == null || coverId! <= 0)
       ? null
       : 'https://covers.openlibrary.org/b/id/$coverId-M.jpg';
 

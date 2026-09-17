@@ -19,6 +19,18 @@ class SearchInitial extends SearchState {
   const SearchInitial();
 }
 
+/// A query is being typed but is still shorter than [minLength] — the minimum
+/// the remote API accepts. We hold off firing a request (which would 422) and
+/// nudge the user to keep typing instead of surfacing an error.
+class SearchTooShort extends SearchState {
+  const SearchTooShort(this.minLength);
+
+  final int minLength;
+
+  @override
+  List<Object?> get props => [minLength];
+}
+
 /// A first-page request is in flight.
 class SearchLoading extends SearchState {
   const SearchLoading();

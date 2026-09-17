@@ -49,6 +49,11 @@ void main() {
     test('coverUrl is null when the cover is absent', () {
       expect(buildDetail(coverId: null).coverUrl, isNull);
     });
+
+    test('coverUrl is null for the non-positive "no cover" sentinel', () {
+      expect(buildDetail(coverId: -1).coverUrl, isNull);
+      expect(buildDetail(coverId: 0).coverUrl, isNull);
+    });
   });
 
   test('BookDetail has value equality', () {

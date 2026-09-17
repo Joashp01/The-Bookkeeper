@@ -19,15 +19,27 @@ class SearchViewModel extends ChangeNotifier {
   SearchViewModel({
     required SearchRepository repository,
     Duration debounceDuration = const Duration(milliseconds: 400),
+    int minQueryLength = 3,
   })  : _repository = repository,
-        _debounceDuration = debounceDuration;
+        _debounceDuration = debounceDuration,
+        _minQueryLength = minQueryLength;
 
   final SearchRepository _repository;
   final Duration _debounceDuration;
 
+  /// Shortest query the remote API accepts. Below this the search endpoint
+  /// responds 422, so we never fire the request and prompt the user instead.
+  final int _minQueryLength;
+
   Timer? _debounce;
   String _query = '';
   int _page = 1;
+
+  // Monotonic id for the "current intent". Every request captures the value
+  // live at dispatch; when its response arrives we drop it if the generation has
+  // since moved on (a newer query, or the query was cleared). This stops a slow
+  // in-flight response from clobbering fresher state.
+  int _generation = 0;
   int _numFound = 0;
   bool _isLoadingMore = false;
   bool _isOffline = false;
@@ -45,20 +57,34 @@ class SearchViewModel extends ChangeNotifier {
     _query = value;
     _debounce?.cancel();
 
-    if (value.trim().isEmpty) {
+    final trimmed = value.trim();
+
+    if (trimmed.isEmpty) {
+      _generation++;
       _reset();
       _setState(const SearchInitial());
       return;
     }
 
-    _debounce = Timer(_debounceDuration, () => _runInitialSearch(value.trim()));
+    if (trimmed.length < _minQueryLength) {
+      _generation++;
+      _reset();
+      _setState(SearchTooShort(_minQueryLength));
+      return;
+    }
+
+    _debounce = Timer(_debounceDuration, () => _runInitialSearch(trimmed));
   }
 
   Future<void> _runInitialSearch(String term) async {
     _resetPaging();
+    final generation = ++_generation;
     _setState(const SearchLoading());
 
     final result = await _repository.search(query: term, page: _page);
+    if (generation != _generation) {
+      return; // A newer query (or a clear) superseded this request.
+    }
     result.when(
       success: (page) {
         _numFound = page.numFound;
@@ -81,11 +107,15 @@ class SearchViewModel extends ChangeNotifier {
       return;
     }
 
+    final generation = _generation;
     _isLoadingMore = true;
     _setState(_resultsState());
 
     final nextPage = _page + 1;
     final result = await _repository.search(query: _query.trim(), page: nextPage);
+    if (generation != _generation) {
+      return; // A new search started while this page was loading; discard it.
+    }
     _isLoadingMore = false;
 
     result.when(

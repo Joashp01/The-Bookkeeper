@@ -37,7 +37,9 @@ class BookDetail extends Equatable {
   String get descriptionDisplay =>
       (description == null || description!.isEmpty) ? noDescription : description!;
 
-  String? get coverUrl => coverId == null
+  /// See [Book.coverUrl]: `null` when there is no usable cover, including the
+  /// non-positive "no cover" sentinel ids Open Library sometimes returns.
+  String? get coverUrl => (coverId == null || coverId! <= 0)
       ? null
       : 'https://covers.openlibrary.org/b/id/$coverId-M.jpg';
 

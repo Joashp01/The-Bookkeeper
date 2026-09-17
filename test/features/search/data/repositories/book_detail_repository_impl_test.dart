@@ -96,4 +96,17 @@ void main() {
       isA<NetworkFailure>(),
     );
   });
+
+  test('an empty key fails fast without hitting the network', () async {
+    const keyless = Book(key: '', title: 'Dune', authorNames: ['Frank Herbert']);
+
+    final result = await repository.getDetail(keyless);
+
+    expect(result, isA<FailureResult<BookDetail>>());
+    final failure = (result as FailureResult<BookDetail>).failure;
+    expect(failure, isA<ServerFailure>());
+    expect((failure as ServerFailure).statusCode, 404);
+    // No round trip is wasted on a request we know would 404.
+    verifyNever(() => client.get(any()));
+  });
 }

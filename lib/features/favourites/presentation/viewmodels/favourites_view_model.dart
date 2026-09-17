@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/failure_mapper.dart';
+import '../../../../core/error/failure_messages.dart';
 import '../../../search/domain/models/book.dart';
 import '../../domain/repositories/favourites_repository.dart';
 
@@ -34,9 +37,13 @@ class FavouritesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Adds or removes [book] optimistically, then persists. If persistence fails
-  /// the optimistic change is rolled back so the UI never disagrees with storage.
-  Future<void> toggle(Book book) async {
+  /// Adds or removes [book] optimistically, then persists.
+  ///
+  /// Returns `null` on success, or a friendly, user-safe message when
+  /// persistence fails — in which case the optimistic change is rolled back so
+  /// the UI never disagrees with storage. Only the typed [CacheException] is
+  /// handled here; anything else propagates rather than being silently masked.
+  Future<String?> toggle(Book book) async {
     final wasFavourite = isFavourite(book.key);
 
     if (wasFavourite) {
@@ -52,13 +59,15 @@ class FavouritesViewModel extends ChangeNotifier {
       } else {
         await _repository.addFavourite(book);
       }
-    } catch (_) {
+      return null;
+    } on CacheException catch (error) {
       if (wasFavourite) {
         _favourites[book.key] = book;
       } else {
         _favourites.remove(book.key);
       }
       notifyListeners();
+      return messageForFailure(mapErrorToFailure(error));
     }
   }
 }

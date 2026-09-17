@@ -1,3 +1,4 @@
+import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_mapper.dart';
 import '../../../../core/error/result.dart';
 import '../../domain/models/book.dart';
@@ -16,8 +17,16 @@ class BookDetailRepositoryImpl implements BookDetailRepository {
 
   @override
   Future<Result<BookDetail>> getDetail(Book book) async {
+    final workId = extractWorkId(book.key);
+    if (workId.isEmpty) {
+      // A missing/malformed key would build `/works/.json`, a guaranteed 404.
+      // Fail fast with the same 404-class failure that request would produce,
+      // rather than spending a round trip to discover it.
+      return const FailureResult(
+        ServerFailure('Book has no valid work id', statusCode: 404),
+      );
+    }
     try {
-      final workId = extractWorkId(book.key);
       final dto = await remoteDataSource.fetchWork(workId);
       final detail = dto.toDomain(
         authorNames: book.authorNames,

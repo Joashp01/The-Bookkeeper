@@ -13,6 +13,7 @@ Failure mapErrorToFailure(Object error) {
     ServerException(:final statusCode, :final message) =>
       ServerFailure(message, statusCode: statusCode),
     ParsingException(:final message) => ParsingFailure(message),
+    CacheException(:final message) => CacheFailure(message),
     FormatException(:final message) =>
       ParsingFailure('Malformed response: $message'),
     http.ClientException(:final message) => NetworkFailure(message),
