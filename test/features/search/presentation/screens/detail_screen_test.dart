@@ -82,7 +82,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Frank Herbert'), findsOneWidget);
-    expect(find.text('First published: 1965'), findsOneWidget);
+    expect(find.text('1965'), findsOneWidget);
     expect(find.widgetWithText(Chip, 'Science Fiction'), findsOneWidget);
     expect(find.text('A desert epic.'), findsOneWidget);
   });

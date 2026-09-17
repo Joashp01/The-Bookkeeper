@@ -79,33 +79,70 @@ class _DetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final scheme = theme.colorScheme;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: CoverImage(
-              url: detail.coverUrl,
-              width: 160,
-              height: 240,
-              semanticLabel: 'Cover of ${detail.title}',
-            ),
+        // Hero header: cover beside the key facts, on a soft surface card.
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(20),
           ),
-        ),
-        const SizedBox(height: 20),
-        Semantics(
-          header: true,
-          child: Text(detail.title, style: textTheme.headlineSmall),
-        ),
-        const SizedBox(height: 8),
-        Text(detail.authorDisplay, style: textTheme.titleMedium),
-        const SizedBox(height: 4),
-        Text(
-          'First published: ${detail.yearDisplay}',
-          style: textTheme.bodyMedium,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CoverImage(
+                  url: detail.coverUrl,
+                  width: 120,
+                  height: 180,
+                  semanticLabel: 'Cover of ${detail.title}',
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(detail.title, style: textTheme.titleLarge),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      detail.authorDisplay,
+                      style: textTheme.titleSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.event_outlined,
+                          size: 16,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          detail.yearDisplay,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         if (detail.subjects.isNotEmpty) ...[
           const SizedBox(height: 16),
