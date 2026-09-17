@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_messages.dart';
 import '../../domain/models/book.dart';
 import '../../domain/repositories/search_repository.dart';
@@ -79,8 +80,26 @@ class SearchViewModel extends ChangeNotifier {
           ..addAll(page.books);
         _setState(_books.isEmpty ? const SearchEmpty() : _resultsState());
       },
-      failure: (failure) => _setState(SearchError(messageForFailure(failure))),
+      failure: (failure) => _setState(_stateForFailure(failure)),
     );
+  }
+
+  /// Turns a search [Failure] into the right view state. A 4xx means the query
+  /// itself was refused (Open Library rejects bare stop-words like "the" and
+  /// other unsearchable terms) — retrying the same text can't help, so we show a
+  /// calm refine-your-search prompt instead of the error card. Everything else
+  /// is a genuine error.
+  SearchState _stateForFailure(Failure failure) {
+    if (failure is ServerFailure &&
+        failure.statusCode != null &&
+        failure.statusCode! >= 400 &&
+        failure.statusCode! < 500) {
+      return const SearchUnsupportedQuery(
+        "We couldn't search for that. Try a more specific title, author, or "
+        'subject.',
+      );
+    }
+    return SearchError(messageForFailure(failure));
   }
 
   Future<void> loadNextPage() async {

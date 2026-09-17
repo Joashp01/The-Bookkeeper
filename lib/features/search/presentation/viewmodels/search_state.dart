@@ -22,6 +22,16 @@ class SearchTooShort extends SearchState {
   List<Object?> get props => [minLength];
 }
 
+
+class SearchUnsupportedQuery extends SearchState {
+  const SearchUnsupportedQuery(this.message);
+
+  final String message;
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class SearchLoading extends SearchState {
   const SearchLoading();
 }
