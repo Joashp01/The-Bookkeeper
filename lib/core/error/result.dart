@@ -1,12 +1,8 @@
 import 'failure.dart';
 
-/// A lightweight success-or-failure wrapper used by the domain/data layers so
-/// that error handling stays explicit at every call site rather than relying on
-/// thrown exceptions crossing layer boundaries.
 sealed class Result<T> {
   const Result();
 
-  /// Fold both branches into a single value.
   R when<R>({
     required R Function(T value) success,
     required R Function(Failure failure) failure,

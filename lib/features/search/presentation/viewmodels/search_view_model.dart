@@ -7,38 +7,25 @@ import '../../domain/models/book.dart';
 import '../../domain/repositories/search_repository.dart';
 import 'search_state.dart';
 
-/// Presentation-layer state holder for the search screen.
-///
-/// Owns the debounce, pagination and state-machine logic so the widget stays
-/// dumb. It depends only on the [SearchRepository] abstraction, injected via DI.
 class SearchViewModel extends ChangeNotifier {
-  // Named parameters cannot be private, so `this._field` initializing formals
-  // are impossible here; assigning in the initializer list is the idiomatic
-  // alternative (hence the lint suppression).
   // ignore_for_file: prefer_initializing_formals
   SearchViewModel({
     required SearchRepository repository,
     Duration debounceDuration = const Duration(milliseconds: 400),
     int minQueryLength = 3,
-  })  : _repository = repository,
-        _debounceDuration = debounceDuration,
-        _minQueryLength = minQueryLength;
+  }) : _repository = repository,
+       _debounceDuration = debounceDuration,
+       _minQueryLength = minQueryLength;
 
   final SearchRepository _repository;
   final Duration _debounceDuration;
 
-  /// Shortest query the remote API accepts. Below this the search endpoint
-  /// responds 422, so we never fire the request and prompt the user instead.
   final int _minQueryLength;
 
   Timer? _debounce;
   String _query = '';
   int _page = 1;
 
-  // Monotonic id for the "current intent". Every request captures the value
-  // live at dispatch; when its response arrives we drop it if the generation has
-  // since moved on (a newer query, or the query was cleared). This stops a slow
-  // in-flight response from clobbering fresher state.
   int _generation = 0;
   int _numFound = 0;
   bool _isLoadingMore = false;
@@ -51,8 +38,6 @@ class SearchViewModel extends ChangeNotifier {
 
   bool get _hasMore => _books.length < _numFound;
 
-  /// Called on every keystroke. Debounces so only the last value in a burst
-  /// fires a request. An empty query resets to the initial state immediately.
   void onQueryChanged(String value) {
     _query = value;
     _debounce?.cancel();
@@ -83,7 +68,7 @@ class SearchViewModel extends ChangeNotifier {
 
     final result = await _repository.search(query: term, page: _page);
     if (generation != _generation) {
-      return; // A newer query (or a clear) superseded this request.
+      return;
     }
     result.when(
       success: (page) {
@@ -98,9 +83,6 @@ class SearchViewModel extends ChangeNotifier {
     );
   }
 
-  /// Loads and appends the next page. No-op unless results are shown and more
-  /// pages exist. A pagination failure keeps the existing list rather than
-  /// wiping it.
   Future<void> loadNextPage() async {
     final current = _state;
     if (current is! SearchResults || !current.hasMore || _isLoadingMore) {
@@ -112,9 +94,12 @@ class SearchViewModel extends ChangeNotifier {
     _setState(_resultsState());
 
     final nextPage = _page + 1;
-    final result = await _repository.search(query: _query.trim(), page: nextPage);
+    final result = await _repository.search(
+      query: _query.trim(),
+      page: nextPage,
+    );
     if (generation != _generation) {
-      return; // A new search started while this page was loading; discard it.
+      return;
     }
     _isLoadingMore = false;
 
@@ -130,7 +115,6 @@ class SearchViewModel extends ChangeNotifier {
     );
   }
 
-  /// Re-runs the current query from the first page (used by the error retry).
   Future<void> retry() async {
     if (_query.trim().isEmpty) {
       return;
@@ -139,11 +123,11 @@ class SearchViewModel extends ChangeNotifier {
   }
 
   SearchResults _resultsState() => SearchResults(
-        books: List.unmodifiable(_books),
-        hasMore: _hasMore,
-        isLoadingMore: _isLoadingMore,
-        isOffline: _isOffline,
-      );
+    books: List.unmodifiable(_books),
+    hasMore: _hasMore,
+    isLoadingMore: _isLoadingMore,
+    isOffline: _isOffline,
+  );
 
   void _resetPaging() {
     _page = 1;

@@ -4,8 +4,6 @@ import 'package:bookshelf/features/favourites/presentation/viewmodels/favourites
 import 'package:bookshelf/features/search/domain/models/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// In-memory fake repository. [failOnWrite] lets tests exercise the rollback;
-/// it fails the way the real repository does — with a typed [CacheException].
 class _FakeFavouritesRepository implements FavouritesRepository {
   _FakeFavouritesRepository({this.failOnWrite = false});
 
@@ -72,9 +70,21 @@ void main() {
 
     final error = await vm.toggle(_book);
 
-    expect(vm.isFavourite(_book.key), isFalse, reason: 'rolled back on failure');
-    expect(error, isNotNull, reason: 'a friendly message is returned to the UI');
-    expect(error, isNot(contains('write failed')), reason: 'no raw detail leaks');
+    expect(
+      vm.isFavourite(_book.key),
+      isFalse,
+      reason: 'rolled back on failure',
+    );
+    expect(
+      error,
+      isNotNull,
+      reason: 'a friendly message is returned to the UI',
+    );
+    expect(
+      error,
+      isNot(contains('write failed')),
+      reason: 'no raw detail leaks',
+    );
   });
 
   test('toggle returns null on success', () async {

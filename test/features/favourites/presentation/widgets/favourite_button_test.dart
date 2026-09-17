@@ -38,17 +38,14 @@ void main() {
       ),
     );
 
-    // Starts unfavourited.
     expect(find.byIcon(Icons.favorite_border), findsOneWidget);
     expect(find.byIcon(Icons.favorite), findsNothing);
 
-    // Tap to favourite.
     await tester.tap(find.byType(IconButton));
     await tester.pumpAndSettle();
     expect(find.byIcon(Icons.favorite), findsOneWidget);
     expect(vm.isFavourite(_book.key), isTrue);
 
-    // Tap again to unfavourite.
     await tester.tap(find.byType(IconButton));
     await tester.pumpAndSettle();
     expect(find.byIcon(Icons.favorite_border), findsOneWidget);

@@ -25,8 +25,7 @@ class _FakeRepo implements SearchRepository {
   Future<Result<SearchResult>> search({
     required String query,
     required int page,
-  }) =>
-      responder(query, page);
+  }) => responder(query, page);
 }
 
 class _NoopFavouritesRepository implements FavouritesRepository {
@@ -50,8 +49,12 @@ class _InMemoryThemeStore implements ThemePreferenceStore {
   Future<void> write(String value) async => this.value = value;
 }
 
-Book _book(String title) =>
-    Book(key: '/works/$title', title: title, authorNames: const ['A'], firstPublishYear: 2000);
+Book _book(String title) => Book(
+  key: '/works/$title',
+  title: title,
+  authorNames: const ['A'],
+  firstPublishYear: 2000,
+);
 
 Widget _wrap(SearchViewModel viewModel) {
   return MultiProvider(
@@ -71,14 +74,16 @@ Widget _wrap(SearchViewModel viewModel) {
 
 Future<void> _search(WidgetTester tester, String term) async {
   await tester.enterText(find.byType(TextField), term);
-  await tester.pump(); // fire the (zero) debounce timer
+  await tester.pump();
 }
 
 void main() {
   testWidgets('initial state prompts the user to search', (tester) async {
     final vm = SearchViewModel(
-      repository: _FakeRepo((_, _) async =>
-          const Success(SearchResult(books: [], numFound: 0, page: 1))),
+      repository: _FakeRepo(
+        (_, _) async =>
+            const Success(SearchResult(books: [], numFound: 0, page: 1)),
+      ),
     );
 
     await tester.pumpWidget(_wrap(vm));
@@ -100,15 +105,23 @@ void main() {
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    completer.complete(const Success(SearchResult(books: [], numFound: 0, page: 1)));
+    completer.complete(
+      const Success(SearchResult(books: [], numFound: 0, page: 1)),
+    );
     await tester.pumpAndSettle();
   });
 
   testWidgets('results state renders a tile per book', (tester) async {
     final vm = SearchViewModel(
-      repository: _FakeRepo((_, _) async => Success(
-            SearchResult(books: [_book('Dune'), _book('Dune Messiah')], numFound: 2, page: 1),
-          )),
+      repository: _FakeRepo(
+        (_, _) async => Success(
+          SearchResult(
+            books: [_book('Dune'), _book('Dune Messiah')],
+            numFound: 2,
+            page: 1,
+          ),
+        ),
+      ),
       debounceDuration: Duration.zero,
     );
 
@@ -123,8 +136,10 @@ void main() {
 
   testWidgets('empty state shows a no-results message', (tester) async {
     final vm = SearchViewModel(
-      repository: _FakeRepo((_, _) async =>
-          const Success(SearchResult(books: [], numFound: 0, page: 1))),
+      repository: _FakeRepo(
+        (_, _) async =>
+            const Success(SearchResult(books: [], numFound: 0, page: 1)),
+      ),
       debounceDuration: Duration.zero,
     );
 
@@ -136,10 +151,14 @@ void main() {
     expect(find.byType(BookTile), findsNothing);
   });
 
-  testWidgets('error state shows the message and a retry action', (tester) async {
+  testWidgets('error state shows the message and a retry action', (
+    tester,
+  ) async {
     final vm = SearchViewModel(
-      repository: _FakeRepo((_, _) async =>
-          const FailureResult(ServerFailure('Network unavailable'))),
+      repository: _FakeRepo(
+        (_, _) async =>
+            const FailureResult(ServerFailure('Network unavailable')),
+      ),
       debounceDuration: Duration.zero,
     );
 
@@ -148,7 +167,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Something went wrong.'), findsOneWidget);
-    // The raw technical message is never shown; friendly copy is.
     expect(find.text('Network unavailable'), findsNothing);
     expect(
       find.textContaining('The book service is having trouble'),
@@ -157,17 +175,20 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Retry'), findsOneWidget);
   });
 
-  testWidgets('offline results show the offline banner above the list',
-      (tester) async {
+  testWidgets('offline results show the offline banner above the list', (
+    tester,
+  ) async {
     final vm = SearchViewModel(
-      repository: _FakeRepo((_, _) async => Success(
-            SearchResult(
-              books: [_book('Dune')],
-              numFound: 1,
-              page: 1,
-              isOffline: true,
-            ),
-          )),
+      repository: _FakeRepo(
+        (_, _) async => Success(
+          SearchResult(
+            books: [_book('Dune')],
+            numFound: 1,
+            page: 1,
+            isOffline: true,
+          ),
+        ),
+      ),
       debounceDuration: Duration.zero,
     );
 

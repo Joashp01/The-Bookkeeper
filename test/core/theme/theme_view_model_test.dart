@@ -3,7 +3,6 @@ import 'package:bookshelf/core/theme/theme_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// In-memory fake store standing in for the sqflite implementation.
 class _FakeThemePreferenceStore implements ThemePreferenceStore {
   _FakeThemePreferenceStore([this.value]);
 
@@ -58,7 +57,7 @@ void main() {
     var notified = 0;
     vm.addListener(() => notified++);
 
-    await vm.setThemeMode(ThemeMode.system); // already system
+    await vm.setThemeMode(ThemeMode.system);
 
     expect(notified, 0);
     expect(store.value, isNull, reason: 'no write for a no-op');

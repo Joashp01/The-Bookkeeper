@@ -31,8 +31,10 @@ class _FakeCache implements SearchCacheDataSource {
   }
 
   @override
-  Future<CachedSearch?> read({required String query, required int page}) async =>
-      _store['$query|$page'];
+  Future<CachedSearch?> read({
+    required String query,
+    required int page,
+  }) async => _store['$query|$page'];
 }
 
 class _FakeConnectivity implements ConnectivityChecker {
@@ -65,8 +67,9 @@ void main() {
   });
 
   void stubResponse(String body, int statusCode) {
-    when(() => client.get(any()))
-        .thenAnswer((_) async => http.Response(body, statusCode));
+    when(
+      () => client.get(any()),
+    ).thenAnswer((_) async => http.Response(body, statusCode));
   }
 
   const successBody = <String, dynamic>{
@@ -79,10 +82,7 @@ void main() {
         'cover_i': 111,
         'first_publish_year': 1965,
       },
-      <String, dynamic>{
-        'key': '/works/OL2W',
-        'title': 'Dune Messiah',
-      },
+      <String, dynamic>{'key': '/works/OL2W', 'title': 'Dune Messiah'},
     ],
   };
 
@@ -102,17 +102,19 @@ void main() {
       expect(value.books[1].coverUrl, isNull);
     });
 
-    test('HTTP error response returns a ServerFailure with the status code',
-        () async {
-      stubResponse('Internal Server Error', 500);
+    test(
+      'HTTP error response returns a ServerFailure with the status code',
+      () async {
+        stubResponse('Internal Server Error', 500);
 
-      final result = await repository.search(query: 'dune', page: 1);
+        final result = await repository.search(query: 'dune', page: 1);
 
-      expect(result, isA<FailureResult<SearchResult>>());
-      final failure = (result as FailureResult<SearchResult>).failure;
-      expect(failure, isA<ServerFailure>());
-      expect((failure as ServerFailure).statusCode, 500);
-    });
+        expect(result, isA<FailureResult<SearchResult>>());
+        final failure = (result as FailureResult<SearchResult>).failure;
+        expect(failure, isA<ServerFailure>());
+        expect((failure as ServerFailure).statusCode, 500);
+      },
+    );
 
     test('malformed JSON returns a ParsingFailure (no crash)', () async {
       stubResponse('this is { not json', 200);
@@ -126,18 +128,20 @@ void main() {
       );
     });
 
-    test('unexpected JSON shape (not an object) returns a ParsingFailure',
-        () async {
-      stubResponse(jsonEncode(<int>[1, 2, 3]), 200);
+    test(
+      'unexpected JSON shape (not an object) returns a ParsingFailure',
+      () async {
+        stubResponse(jsonEncode(<int>[1, 2, 3]), 200);
 
-      final result = await repository.search(query: 'dune', page: 1);
+        final result = await repository.search(query: 'dune', page: 1);
 
-      expect(result, isA<FailureResult<SearchResult>>());
-      expect(
-        (result as FailureResult<SearchResult>).failure,
-        isA<ParsingFailure>(),
-      );
-    });
+        expect(result, isA<FailureResult<SearchResult>>());
+        expect(
+          (result as FailureResult<SearchResult>).failure,
+          isA<ParsingFailure>(),
+        );
+      },
+    );
 
     test('empty result set returns an empty (non-error) page', () async {
       stubResponse(
@@ -168,25 +172,27 @@ void main() {
       await repository.search(query: 'dune', page: 1);
     }
 
-    test('offline with cached results serves the cache with the offline flag',
-        () async {
-      await primeCache();
-      connectivity.online = false;
-      when(() => client.get(any()))
-          .thenThrow(http.ClientException('offline'));
+    test(
+      'offline with cached results serves the cache with the offline flag',
+      () async {
+        await primeCache();
+        connectivity.online = false;
+        when(
+          () => client.get(any()),
+        ).thenThrow(http.ClientException('offline'));
 
-      final result = await repository.search(query: 'dune', page: 1);
+        final result = await repository.search(query: 'dune', page: 1);
 
-      expect(result, isA<Success<SearchResult>>());
-      final value = (result as Success<SearchResult>).value;
-      expect(value.isOffline, isTrue);
-      expect(value.books, hasLength(2));
-    });
+        expect(result, isA<Success<SearchResult>>());
+        final value = (result as Success<SearchResult>).value;
+        expect(value.isOffline, isTrue);
+        expect(value.books, hasLength(2));
+      },
+    );
 
     test('offline with no cache returns a NetworkFailure', () async {
       connectivity.online = false;
-      when(() => client.get(any()))
-          .thenThrow(http.ClientException('offline'));
+      when(() => client.get(any())).thenThrow(http.ClientException('offline'));
 
       final result = await repository.search(query: 'never-run', page: 1);
 

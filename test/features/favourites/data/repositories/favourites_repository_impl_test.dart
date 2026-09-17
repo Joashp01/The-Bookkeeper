@@ -5,8 +5,6 @@ import 'package:bookshelf/features/favourites/domain/repositories/favourites_rep
 import 'package:bookshelf/features/search/domain/models/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// In-memory fake standing in for the SQL data source, so the repository's
-/// mapping/delegation is tested without a database.
 class _FakeLocalDataSource implements FavouritesLocalDataSource {
   final Map<String, FavouriteDto> _store = {};
   final List<String> deletedKeys = [];

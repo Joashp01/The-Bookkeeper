@@ -3,9 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../core/network/connectivity_view_model.dart';
 
-/// Wraps every route with a persistent bar that slides in whenever the device
-/// is offline, so the offline state is evident on any screen (search, detail,
-/// favourites). Installed via `MaterialApp.builder`.
 class OfflineBanner extends StatelessWidget {
   const OfflineBanner({super.key, required this.child});
 
@@ -47,11 +44,7 @@ class _OfflineBar extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.wifi_off,
-                  size: 18,
-                  color: scheme.onErrorContainer,
-                ),
+                Icon(Icons.wifi_off, size: 18, color: scheme.onErrorContainer),
                 const SizedBox(width: 8),
                 Text(
                   'No internet connection',

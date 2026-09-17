@@ -1,8 +1,3 @@
-/// Raw data-layer representation of the works endpoint (`/works/<id>.json`).
-///
-/// The interesting F5 case lives here: `description` is sometimes a plain
-/// string, sometimes an object with a `value` key, and sometimes absent. All
-/// three collapse to a nullable [String] without throwing.
 class WorkDto {
   const WorkDto({
     required this.key,
@@ -28,7 +23,6 @@ class WorkDto {
     );
   }
 
-  /// `description`: string → itself; `{value: ...}` → the value; else null.
   static String? parseDescription(dynamic raw) {
     if (raw is String) {
       return raw;
@@ -45,7 +39,6 @@ class WorkDto {
   static List<String> parseStringList(dynamic raw) =>
       raw is List ? raw.whereType<String>().toList(growable: false) : const [];
 
-  /// `covers` is an array of ids; take the first valid int, if any.
   static int? parseFirstCover(dynamic raw) {
     if (raw is List) {
       for (final item in raw) {

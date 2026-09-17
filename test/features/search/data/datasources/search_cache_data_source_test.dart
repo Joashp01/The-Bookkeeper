@@ -12,11 +12,7 @@ const _books = [
     coverId: 111,
     firstPublishYear: 1965,
   ),
-  Book(
-    key: '/works/OL2W',
-    title: 'Dune Messiah',
-    authorNames: [],
-  ),
+  Book(key: '/works/OL2W', title: 'Dune Messiah', authorNames: []),
 ];
 
 void main() {
@@ -28,8 +24,10 @@ void main() {
   setUp(() async {
     database = await databaseFactoryFfi.openDatabase(
       inMemoryDatabasePath,
-      options:
-          OpenDatabaseOptions(version: databaseVersion, onCreate: createSchema),
+      options: OpenDatabaseOptions(
+        version: databaseVersion,
+        onCreate: createSchema,
+      ),
     );
     cache = SearchCacheDataSourceImpl(database: database);
   });

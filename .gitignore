@@ -51,7 +51,4 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
-# Local planning notes and assessment brief (kept out of the repo)
-PLAN.md
-Porcupine*.pdf
-Porcupine*.md
+

@@ -53,7 +53,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No internet connection'), findsOneWidget);
-    // Content stays on screen beneath the banner.
     expect(find.text('content'), findsOneWidget);
   });
 }

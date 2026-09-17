@@ -10,8 +10,6 @@ import '../../domain/repositories/book_detail_repository.dart';
 import '../viewmodels/detail_state.dart';
 import '../viewmodels/detail_view_model.dart';
 
-/// Pushes the detail screen for [book], creating a scoped [DetailViewModel] from
-/// the repository already registered in the widget tree.
 Future<void> openBookDetail(BuildContext context, Book book) {
   final repository = context.read<BookDetailRepository>();
   return Navigator.of(context).push(
@@ -24,8 +22,6 @@ Future<void> openBookDetail(BuildContext context, Book book) {
   );
 }
 
-/// The detail screen (F2). Loads on first build and renders the work's cover,
-/// title, author(s), year, subjects and description.
 class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key});
 
@@ -37,8 +33,6 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Defer to after the first frame: load() notifies listeners synchronously,
-    // which must not happen during build.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<DetailViewModel>().load();
@@ -86,7 +80,6 @@ class _DetailBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Hero header: cover beside the key facts, on a soft surface card.
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(

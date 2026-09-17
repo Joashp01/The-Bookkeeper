@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Immutable domain model for the detail screen (Open Library works endpoint).
-///
-/// As with [Book], display fallbacks (F5) are centralised in the getters so the
-/// detail screen never has to decide what to show for a missing field.
 class BookDetail extends Equatable {
   const BookDetail({
     required this.workId,
@@ -15,7 +11,6 @@ class BookDetail extends Equatable {
     this.firstPublishYear,
   });
 
-  /// Trailing segment of the work key, e.g. `OL45804W`.
   final String workId;
   final String title;
   final List<String> authorNames;
@@ -33,24 +28,22 @@ class BookDetail extends Equatable {
 
   String get yearDisplay => firstPublishYear?.toString() ?? unknownYear;
 
-  /// Description text, or the fallback when it was absent or empty.
-  String get descriptionDisplay =>
-      (description == null || description!.isEmpty) ? noDescription : description!;
+  String get descriptionDisplay => (description == null || description!.isEmpty)
+      ? noDescription
+      : description!;
 
-  /// See [Book.coverUrl]: `null` when there is no usable cover, including the
-  /// non-positive "no cover" sentinel ids Open Library sometimes returns.
   String? get coverUrl => (coverId == null || coverId! <= 0)
       ? null
       : 'https://covers.openlibrary.org/b/id/$coverId-M.jpg';
 
   @override
   List<Object?> get props => [
-        workId,
-        title,
-        authorNames,
-        subjects,
-        description,
-        coverId,
-        firstPublishYear,
-      ];
+    workId,
+    title,
+    authorNames,
+    subjects,
+    description,
+    coverId,
+    firstPublishYear,
+  ];
 }

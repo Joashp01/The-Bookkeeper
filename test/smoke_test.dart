@@ -9,13 +9,13 @@ void main() {
 
   late Database database;
 
-  // Open outside the widget-test body: the test binding's fake clock does not
-  // drain native async, so opening the database inside testWidgets would hang.
   setUp(() async {
     database = await databaseFactoryFfi.openDatabase(
       inMemoryDatabasePath,
-      options:
-          OpenDatabaseOptions(version: databaseVersion, onCreate: createSchema),
+      options: OpenDatabaseOptions(
+        version: databaseVersion,
+        onCreate: createSchema,
+      ),
     );
   });
 

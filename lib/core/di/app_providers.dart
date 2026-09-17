@@ -20,76 +20,62 @@ import '../network/connectivity_view_model.dart';
 import '../theme/theme_preference_store.dart';
 import '../theme/theme_view_model.dart';
 
-/// Composition root.
-///
-/// The single place concrete dependencies are constructed and wired. Widgets and
-/// view models never build their own dependencies; they receive them from here.
-/// Each layer is registered behind its abstraction so tests can substitute
-/// fakes at the same seam. The [database] is opened once (in `main`) and injected
-/// so persistence lives behind the data-source interface.
 List<SingleChildWidget> buildProviders(Database database) => [
-      Provider<http.Client>(
-        create: (_) => http.Client(),
-        dispose: (_, client) => client.close(),
+  Provider<http.Client>(
+    create: (_) => http.Client(),
+    dispose: (_, client) => client.close(),
+  ),
+  Provider<ConnectivityChecker>(create: (_) => ConnectivityCheckerImpl()),
+  Provider<SearchRepository>(
+    create: (context) => SearchRepositoryImpl(
+      remoteDataSource: SearchRemoteDataSourceImpl(
+        client: context.read<http.Client>(),
       ),
-      // Shared so the repository's offline fallback and the app-wide offline
-      // banner observe the same connectivity source.
-      Provider<ConnectivityChecker>(
-        create: (_) => ConnectivityCheckerImpl(),
+      cache: SearchCacheDataSourceImpl(database: database),
+      connectivity: context.read<ConnectivityChecker>(),
+    ),
+  ),
+  Provider<BookDetailRepository>(
+    create: (context) => BookDetailRepositoryImpl(
+      remoteDataSource: BookDetailRemoteDataSourceImpl(
+        client: context.read<http.Client>(),
       ),
-      Provider<SearchRepository>(
-        create: (context) => SearchRepositoryImpl(
-          remoteDataSource: SearchRemoteDataSourceImpl(
-            client: context.read<http.Client>(),
-          ),
-          cache: SearchCacheDataSourceImpl(database: database),
-          connectivity: context.read<ConnectivityChecker>(),
-        ),
-      ),
-      Provider<BookDetailRepository>(
-        create: (context) => BookDetailRepositoryImpl(
-          remoteDataSource: BookDetailRemoteDataSourceImpl(
-            client: context.read<http.Client>(),
-          ),
-        ),
-      ),
-      Provider<FavouritesRepository>(
-        create: (_) => FavouritesRepositoryImpl(
-          localDataSource: FavouritesLocalDataSourceImpl(database: database),
-        ),
-      ),
-      ChangeNotifierProvider<SearchViewModel>(
-        create: (context) =>
-            SearchViewModel(repository: context.read<SearchRepository>()),
-      ),
-      ChangeNotifierProvider<FavouritesViewModel>(
-        create: (context) {
-          final viewModel = FavouritesViewModel(
-            repository: context.read<FavouritesRepository>(),
-          );
-          // Defer so the initial load's notifyListeners never fires during build.
-          Future.microtask(viewModel.load);
-          return viewModel;
-        },
-      ),
-      ChangeNotifierProvider<ConnectivityViewModel>(
-        create: (context) {
-          final viewModel = ConnectivityViewModel(
-            checker: context.read<ConnectivityChecker>(),
-          );
-          // Defer so the initial connectivity check doesn't notify during build.
-          Future.microtask(viewModel.start);
-          return viewModel;
-        },
-      ),
-      ChangeNotifierProvider<ThemeViewModel>(
-        create: (_) {
-          final viewModel = ThemeViewModel(
-            store: ThemePreferenceStoreImpl(database: database),
-          );
-          // Defer so restoring the saved theme doesn't notify during build.
-          Future.microtask(viewModel.load);
-          return viewModel;
-        },
-      ),
-    ];
+    ),
+  ),
+  Provider<FavouritesRepository>(
+    create: (_) => FavouritesRepositoryImpl(
+      localDataSource: FavouritesLocalDataSourceImpl(database: database),
+    ),
+  ),
+  ChangeNotifierProvider<SearchViewModel>(
+    create: (context) =>
+        SearchViewModel(repository: context.read<SearchRepository>()),
+  ),
+  ChangeNotifierProvider<FavouritesViewModel>(
+    create: (context) {
+      final viewModel = FavouritesViewModel(
+        repository: context.read<FavouritesRepository>(),
+      );
+      Future.microtask(viewModel.load);
+      return viewModel;
+    },
+  ),
+  ChangeNotifierProvider<ConnectivityViewModel>(
+    create: (context) {
+      final viewModel = ConnectivityViewModel(
+        checker: context.read<ConnectivityChecker>(),
+      );
+      Future.microtask(viewModel.start);
+      return viewModel;
+    },
+  ),
+  ChangeNotifierProvider<ThemeViewModel>(
+    create: (_) {
+      final viewModel = ThemeViewModel(
+        store: ThemePreferenceStoreImpl(database: database),
+      );
+      Future.microtask(viewModel.load);
+      return viewModel;
+    },
+  ),
+];

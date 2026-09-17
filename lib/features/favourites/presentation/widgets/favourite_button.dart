@@ -4,9 +4,6 @@ import 'package:provider/provider.dart';
 import '../../../search/domain/models/book.dart';
 import '../viewmodels/favourites_view_model.dart';
 
-/// Heart toggle backed by the shared [FavouritesViewModel]. Used on the results
-/// list, the detail screen and the favourites screen; they all reflect the same
-/// state because they share one view model instance.
 class FavouriteButton extends StatelessWidget {
   const FavouriteButton({super.key, required this.book});
 
@@ -14,8 +11,9 @@ class FavouriteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFavourite =
-        context.watch<FavouritesViewModel>().isFavourite(book.key);
+    final isFavourite = context.watch<FavouritesViewModel>().isFavourite(
+      book.key,
+    );
 
     return IconButton(
       icon: Icon(isFavourite ? Icons.favorite : Icons.favorite_border),
@@ -25,9 +23,6 @@ class FavouriteButton extends StatelessWidget {
     );
   }
 
-  /// Toggles the favourite and, if persistence failed, tells the user rather
-  /// than letting the change silently disappear. The messenger is captured
-  /// before the await so we don't touch a possibly-unmounted context after it.
   Future<void> _toggle(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     final error = await context.read<FavouritesViewModel>().toggle(book);
