@@ -1,9 +1,11 @@
+import 'package:bookshelf/core/error/exceptions.dart';
 import 'package:bookshelf/features/favourites/domain/repositories/favourites_repository.dart';
 import 'package:bookshelf/features/favourites/presentation/viewmodels/favourites_view_model.dart';
 import 'package:bookshelf/features/search/domain/models/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// In-memory fake repository. [failOnWrite] lets tests exercise the rollback.
+/// In-memory fake repository. [failOnWrite] lets tests exercise the rollback;
+/// it fails the way the real repository does — with a typed [CacheException].
 class _FakeFavouritesRepository implements FavouritesRepository {
   _FakeFavouritesRepository({this.failOnWrite = false});
 
@@ -15,13 +17,13 @@ class _FakeFavouritesRepository implements FavouritesRepository {
 
   @override
   Future<void> addFavourite(Book book) async {
-    if (failOnWrite) throw Exception('write failed');
+    if (failOnWrite) throw const CacheException('write failed');
     store[book.key] = book;
   }
 
   @override
   Future<void> removeFavourite(String key) async {
-    if (failOnWrite) throw Exception('write failed');
+    if (failOnWrite) throw const CacheException('write failed');
     store.remove(key);
   }
 }
@@ -68,8 +70,17 @@ void main() {
     final repo = _FakeFavouritesRepository(failOnWrite: true);
     final vm = FavouritesViewModel(repository: repo);
 
-    await vm.toggle(_book);
+    final error = await vm.toggle(_book);
 
     expect(vm.isFavourite(_book.key), isFalse, reason: 'rolled back on failure');
+    expect(error, isNotNull, reason: 'a friendly message is returned to the UI');
+    expect(error, isNot(contains('write failed')), reason: 'no raw detail leaks');
+  });
+
+  test('toggle returns null on success', () async {
+    final repo = _FakeFavouritesRepository();
+    final vm = FavouritesViewModel(repository: repo);
+
+    expect(await vm.toggle(_book), isNull);
   });
 }

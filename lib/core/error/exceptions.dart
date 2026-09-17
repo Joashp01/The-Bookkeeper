@@ -26,3 +26,11 @@ class ServerException extends AppException {
 class ParsingException extends AppException {
   const ParsingException(super.message);
 }
+
+/// A local persistence (SQL) operation failed.
+///
+/// The data layer wraps the underlying `DatabaseException` in this typed form so
+/// the layers above catch a domain error explicitly, without importing sqflite.
+class CacheException extends AppException {
+  const CacheException(super.message);
+}

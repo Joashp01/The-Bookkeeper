@@ -13,11 +13,18 @@ String messageForFailure(Failure failure) {
   return switch (failure) {
     NetworkFailure() =>
       "You're offline. Check your internet connection and try again.",
+    // A 4xx means the request itself was rejected (e.g. a malformed query or an
+    // item that no longer exists), not that the service is down — so we tell the
+    // user it couldn't be completed rather than telling them to wait and retry.
+    ServerFailure(:final statusCode)
+        when statusCode != null && statusCode >= 400 && statusCode < 500 =>
+      "We couldn't complete that request. Please check the details and try "
+          'again.',
     ServerFailure() =>
       'The book service is having trouble right now. Please try again in a '
           'little while.',
     ParsingFailure() =>
       'We received an unexpected response. Please try again in a moment.',
-    CacheFailure() => "We couldn't read your saved data. Please try again.",
+    CacheFailure() => "We couldn't update your saved books. Please try again.",
   };
 }

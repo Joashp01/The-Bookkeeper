@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bookshelf/core/error/failure.dart';
 import 'package:bookshelf/core/error/result.dart';
 import 'package:bookshelf/features/search/domain/models/book.dart';
@@ -52,6 +54,39 @@ void main() {
 
     expect(vm.state, isA<SearchInitial>());
     expect(repo.callCount, 0);
+  });
+
+  test('a query shorter than the minimum shows a hint and skips the request', () {
+    fakeAsync((async) {
+      final repo = _FakeRepo();
+      final vm = SearchViewModel(repository: repo, debounceDuration: Duration.zero);
+
+      vm.onQueryChanged('lo');
+      _settle(async);
+
+      expect(vm.state, isA<SearchTooShort>());
+      expect((vm.state as SearchTooShort).minLength, 3);
+      expect(repo.callCount, 0, reason: 'the API rejects queries under 3 chars');
+    });
+  });
+
+  test('reaching the minimum length fires the search', () {
+    fakeAsync((async) {
+      final repo = _FakeRepo()
+        ..responder = (query, page) =>
+            Success(SearchResult(books: [_book('a')], numFound: 1, page: page));
+      final vm = SearchViewModel(repository: repo, debounceDuration: Duration.zero);
+
+      vm.onQueryChanged('lo');
+      _settle(async);
+      expect(repo.callCount, 0);
+
+      vm.onQueryChanged('lor');
+      _settle(async);
+
+      expect(repo.callCount, 1);
+      expect(vm.state, isA<SearchResults>());
+    });
   });
 
   test('rapid keystrokes are debounced into a single request', () {
@@ -185,4 +220,77 @@ void main() {
       expect(repo.callCount, 0);
     });
   });
+
+  test('a slow response for a superseded query does not clobber the newer one',
+      () {
+    fakeAsync((async) {
+      final completers = <String, Completer<Result<SearchResult>>>{};
+      final repo = _DeferredRepo(completers);
+      final vm = SearchViewModel(repository: repo, debounceDuration: Duration.zero);
+
+      // Dispatch the first ("old") query; its response stays pending.
+      vm.onQueryChanged('older');
+      async.flushTimers();
+
+      // A newer query supersedes it and resolves first.
+      vm.onQueryChanged('newer');
+      async.flushTimers();
+      completers['newer']!.complete(
+        Success(SearchResult(books: [_book('newer')], numFound: 1, page: 1)),
+      );
+      async.flushMicrotasks();
+      expect((vm.state as SearchResults).books.single.title, 'newer');
+
+      // The stale "old" response now arrives late — it must be discarded.
+      completers['older']!.complete(
+        Success(SearchResult(books: [_book('older')], numFound: 1, page: 1)),
+      );
+      async.flushMicrotasks();
+
+      expect(
+        (vm.state as SearchResults).books.single.title,
+        'newer',
+        reason: 'the stale response was ignored',
+      );
+    });
+  });
+
+  test('a response arriving after the query is cleared is discarded', () {
+    fakeAsync((async) {
+      final completers = <String, Completer<Result<SearchResult>>>{};
+      final repo = _DeferredRepo(completers);
+      final vm = SearchViewModel(repository: repo, debounceDuration: Duration.zero);
+
+      vm.onQueryChanged('dune');
+      async.flushTimers();
+
+      // User clears the box before the response lands.
+      vm.onQueryChanged('');
+      completers['dune']!.complete(
+        Success(SearchResult(books: [_book('dune')], numFound: 1, page: 1)),
+      );
+      async.flushMicrotasks();
+
+      expect(vm.state, isA<SearchInitial>(),
+          reason: 'the late response must not resurrect results');
+    });
+  });
+}
+
+/// Repository whose responses are held open via [Completer]s, so a test can
+/// control the order in which in-flight requests resolve.
+class _DeferredRepo implements SearchRepository {
+  _DeferredRepo(this.completers);
+
+  final Map<String, Completer<Result<SearchResult>>> completers;
+
+  @override
+  Future<Result<SearchResult>> search({
+    required String query,
+    required int page,
+  }) {
+    return completers
+        .putIfAbsent(query, () => Completer<Result<SearchResult>>())
+        .future;
+  }
 }

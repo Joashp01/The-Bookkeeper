@@ -21,7 +21,18 @@ class FavouriteButton extends StatelessWidget {
       icon: Icon(isFavourite ? Icons.favorite : Icons.favorite_border),
       color: isFavourite ? Theme.of(context).colorScheme.primary : null,
       tooltip: isFavourite ? 'Remove from favourites' : 'Add to favourites',
-      onPressed: () => context.read<FavouritesViewModel>().toggle(book),
+      onPressed: () => _toggle(context),
     );
+  }
+
+  /// Toggles the favourite and, if persistence failed, tells the user rather
+  /// than letting the change silently disappear. The messenger is captured
+  /// before the await so we don't touch a possibly-unmounted context after it.
+  Future<void> _toggle(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final error = await context.read<FavouritesViewModel>().toggle(book);
+    if (error != null) {
+      messenger.showSnackBar(SnackBar(content: Text(error)));
+    }
   }
 }

@@ -129,6 +129,10 @@ class _StateView extends StatelessWidget {
         icon: Icons.search,
         message: 'Search for a book to get started.',
       ),
+      SearchTooShort(:final minLength) => _Centered(
+        icon: Icons.keyboard,
+        message: 'Keep typing — enter at least $minLength characters to search.',
+      ),
       SearchLoading() => const Center(child: CircularProgressIndicator()),
       SearchEmpty() => const _Centered(
         icon: Icons.sentiment_dissatisfied,

@@ -45,6 +45,13 @@ void main() {
     test('coverUrl is null when the cover is absent', () {
       expect(buildBook(coverId: null).coverUrl, isNull);
     });
+
+    test('coverUrl is null for the non-positive "no cover" sentinel', () {
+      // Open Library returns cover_i: -1 (and occasionally 0) to mean "no
+      // cover"; both must yield a placeholder, not a doomed -1-M.jpg request.
+      expect(buildBook(coverId: -1).coverUrl, isNull);
+      expect(buildBook(coverId: 0).coverUrl, isNull);
+    });
   });
 
   test('Book has value equality', () {
