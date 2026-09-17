@@ -3,18 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../shared/cover_image.dart';
 import '../../domain/models/book.dart';
 
-/// A single search result row: cover, title, author and first publication year,
-/// presented as a tappable card.
-///
-/// Reads only the [Book]'s display getters, so all "missing field" decisions are
-/// made in the model, not here.
 class BookTile extends StatelessWidget {
-  const BookTile({
-    super.key,
-    required this.book,
-    this.onTap,
-    this.trailing,
-  });
+  const BookTile({super.key, required this.book, this.onTap, this.trailing});
 
   final Book book;
   final VoidCallback? onTap;
@@ -33,9 +23,6 @@ class BookTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // The cover is decorative here — the title/author text already
-              // names the book — so CoverImage is left unlabelled and hidden
-              // from screen readers.
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: SizedBox(
@@ -56,8 +43,6 @@ class BookTile extends StatelessWidget {
                       style: textTheme.titleMedium,
                     ),
                     const SizedBox(height: 4),
-                    // ListTile-style merged line, but hand the screen reader a
-                    // natural-language label and hide the decorative "·" text.
                     Semantics(
                       label:
                           '${book.authorDisplay}, published ${book.yearDisplay}',
@@ -86,7 +71,6 @@ class BookTile extends StatelessWidget {
   }
 }
 
-/// Small muted pill showing the first publication year.
 class _YearPill extends StatelessWidget {
   const _YearPill({required this.year});
 
@@ -104,9 +88,9 @@ class _YearPill extends StatelessWidget {
         ),
         child: Text(
           year,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
         ),
       ),
     );

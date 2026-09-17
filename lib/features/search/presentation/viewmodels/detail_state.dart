@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 
 import '../../domain/models/book_detail.dart';
 
-/// State for the detail screen: loading, loaded or error.
 sealed class DetailState extends Equatable {
   const DetailState();
 
@@ -23,7 +22,6 @@ class DetailLoaded extends DetailState {
   List<Object?> get props => [detail];
 }
 
-/// The detail load failed; [message] is friendly, user-safe copy to display.
 class DetailError extends DetailState {
   const DetailError(this.message);
 

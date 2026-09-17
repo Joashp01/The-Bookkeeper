@@ -16,9 +16,12 @@ const _dune = FavouriteDto(
 );
 
 Future<Database> _openInMemory() => databaseFactoryFfi.openDatabase(
-      inMemoryDatabasePath,
-      options: OpenDatabaseOptions(version: databaseVersion, onCreate: createSchema),
-    );
+  inMemoryDatabasePath,
+  options: OpenDatabaseOptions(
+    version: databaseVersion,
+    onCreate: createSchema,
+  ),
+);
 
 void main() {
   setUpAll(sqfliteFfiInit);
@@ -61,17 +64,22 @@ void main() {
   test('favourites survive a database restart (persistence)', () async {
     final dir = Directory.systemTemp.createTempSync('fav_test');
     final path = p.join(dir.path, 'restart.db');
-    final options =
-        OpenDatabaseOptions(version: databaseVersion, onCreate: createSchema);
+    final options = OpenDatabaseOptions(
+      version: databaseVersion,
+      onCreate: createSchema,
+    );
 
-    // Open, write, and close to simulate the app shutting down.
-    var database = await databaseFactoryFfi.openDatabase(path, options: options);
+    var database = await databaseFactoryFfi.openDatabase(
+      path,
+      options: options,
+    );
     await FavouritesLocalDataSourceImpl(database: database).upsert(_dune);
     await database.close();
 
-    // Re-open the same file: the favourite must still be there.
     database = await databaseFactoryFfi.openDatabase(path, options: options);
-    final all = await FavouritesLocalDataSourceImpl(database: database).getAll();
+    final all = await FavouritesLocalDataSourceImpl(
+      database: database,
+    ).getAll();
     await database.close();
     dir.deleteSync(recursive: true);
 

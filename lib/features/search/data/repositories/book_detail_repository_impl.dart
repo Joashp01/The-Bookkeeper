@@ -7,9 +7,6 @@ import '../../domain/repositories/book_detail_repository.dart';
 import '../datasources/book_detail_remote_data_source.dart';
 import '../mappers/work_mapper.dart';
 
-/// Default [BookDetailRepository]. Extracts the work id from the book's key,
-/// fetches the work document, and maps it to a [BookDetail] — threading the
-/// author names, year and cover from the search result the works endpoint omits.
 class BookDetailRepositoryImpl implements BookDetailRepository {
   BookDetailRepositoryImpl({required this.remoteDataSource});
 
@@ -19,9 +16,6 @@ class BookDetailRepositoryImpl implements BookDetailRepository {
   Future<Result<BookDetail>> getDetail(Book book) async {
     final workId = extractWorkId(book.key);
     if (workId.isEmpty) {
-      // A missing/malformed key would build `/works/.json`, a guaranteed 404.
-      // Fail fast with the same 404-class failure that request would produce,
-      // rather than spending a round trip to discover it.
       return const FailureResult(
         ServerFailure('Book has no valid work id', statusCode: 404),
       );

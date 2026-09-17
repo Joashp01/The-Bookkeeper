@@ -1,8 +1,3 @@
-/// Raw data-layer representation of one entry in the search `docs` array.
-///
-/// [BookDto.fromJson] is the F5 defensive boundary: the Open Library response is
-/// deliberately inconsistent, so every field is parsed without assuming its
-/// presence or type. Nothing here throws on unexpected shapes.
 class BookDto {
   const BookDto({
     required this.key,
@@ -28,7 +23,6 @@ class BookDto {
     );
   }
 
-  /// `author_name` is usually a list, sometimes a bare string, sometimes absent.
   static List<String> parseStringList(dynamic raw) {
     if (raw is List) {
       return raw.whereType<String>().toList(growable: false);
@@ -39,7 +33,6 @@ class BookDto {
     return const [];
   }
 
-  /// `cover_i` / `first_publish_year` may be an int, a numeric string, or absent.
   static int? parseInt(dynamic raw) {
     if (raw is int) {
       return raw;

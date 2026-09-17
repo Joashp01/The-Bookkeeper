@@ -21,7 +21,8 @@ void main() {
 
   test('requests the works endpoint for the given id', () async {
     when(() => client.get(any())).thenAnswer(
-      (_) async => http.Response(jsonEncode(<String, dynamic>{'title': 'Dune'}), 200),
+      (_) async =>
+          http.Response(jsonEncode(<String, dynamic>{'title': 'Dune'}), 200),
     );
 
     await dataSource.fetchWork('OL1W');
@@ -33,18 +34,17 @@ void main() {
   });
 
   test('non-200 response throws ServerException', () async {
-    when(() => client.get(any()))
-        .thenAnswer((_) async => http.Response('nope', 404));
+    when(
+      () => client.get(any()),
+    ).thenAnswer((_) async => http.Response('nope', 404));
 
-    expect(
-      () => dataSource.fetchWork('OL1W'),
-      throwsA(isA<ServerException>()),
-    );
+    expect(() => dataSource.fetchWork('OL1W'), throwsA(isA<ServerException>()));
   });
 
   test('a non-object JSON body throws ParsingException', () async {
-    when(() => client.get(any()))
-        .thenAnswer((_) async => http.Response(jsonEncode(<int>[1]), 200));
+    when(
+      () => client.get(any()),
+    ).thenAnswer((_) async => http.Response(jsonEncode(<int>[1]), 200));
 
     expect(
       () => dataSource.fetchWork('OL1W'),

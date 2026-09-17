@@ -7,9 +7,6 @@ import '../../../search/presentation/widgets/book_tile.dart';
 import '../viewmodels/favourites_view_model.dart';
 import '../widgets/favourite_button.dart';
 
-/// Dedicated screen listing all favourited books. Reads the shared
-/// [FavouritesViewModel]; favourites are fully readable offline because they
-/// come from local storage.
 class FavouritesScreen extends StatelessWidget {
   const FavouritesScreen({super.key});
 

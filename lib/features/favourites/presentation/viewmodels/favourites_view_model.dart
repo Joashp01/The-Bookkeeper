@@ -6,14 +6,9 @@ import '../../../../core/error/failure_messages.dart';
 import '../../../search/domain/models/book.dart';
 import '../../domain/repositories/favourites_repository.dart';
 
-/// Single source of truth for favourite state across the whole app.
-///
-/// Because one instance is provided app-wide, the results list, the detail
-/// screen and the favourites screen all read and mutate the same set, so a
-/// toggle in one place is immediately reflected everywhere.
 class FavouritesViewModel extends ChangeNotifier {
   FavouritesViewModel({required FavouritesRepository repository})
-      : _repository = repository; // ignore: prefer_initializing_formals
+    : _repository = repository; // ignore: prefer_initializing_formals
 
   final FavouritesRepository _repository;
 
@@ -37,12 +32,6 @@ class FavouritesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Adds or removes [book] optimistically, then persists.
-  ///
-  /// Returns `null` on success, or a friendly, user-safe message when
-  /// persistence fails — in which case the optimistic change is rolled back so
-  /// the UI never disagrees with storage. Only the typed [CacheException] is
-  /// handled here; anything else propagates rather than being silently masked.
   Future<String?> toggle(Book book) async {
     final wasFavourite = isFavourite(book.key);
 

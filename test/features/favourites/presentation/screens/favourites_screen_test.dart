@@ -36,9 +36,12 @@ Widget _wrap(FavouritesViewModel viewModel) {
 }
 
 void main() {
-  testWidgets('shows an empty message when there are no favourites',
-      (tester) async {
-    final vm = FavouritesViewModel(repository: _FakeFavouritesRepository(const []));
+  testWidgets('shows an empty message when there are no favourites', (
+    tester,
+  ) async {
+    final vm = FavouritesViewModel(
+      repository: _FakeFavouritesRepository(const []),
+    );
 
     await tester.pumpWidget(_wrap(vm));
     await tester.pumpAndSettle();

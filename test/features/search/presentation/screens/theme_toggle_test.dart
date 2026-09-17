@@ -17,8 +17,7 @@ class _NoopSearchRepository implements SearchRepository {
   Future<Result<SearchResult>> search({
     required String query,
     required int page,
-  }) async =>
-      const Success(SearchResult(books: [], numFound: 0, page: 1));
+  }) async => const Success(SearchResult(books: [], numFound: 0, page: 1));
 }
 
 class _NoopFavouritesRepository implements FavouritesRepository {
@@ -54,7 +53,6 @@ Widget _wrap(ThemeViewModel themeViewModel) {
       ),
       ChangeNotifierProvider<ThemeViewModel>.value(value: themeViewModel),
     ],
-    // The toggle drives the app-wide themeMode, so mirror the real app wiring.
     child: Consumer<ThemeViewModel>(
       builder: (context, vm, _) => MaterialApp(
         themeMode: vm.themeMode,
@@ -68,40 +66,43 @@ Widget _wrap(ThemeViewModel themeViewModel) {
 
 void main() {
   testWidgets('starts on the system icon', (tester) async {
-    await tester.pumpWidget(_wrap(ThemeViewModel(store: _InMemoryThemeStore())));
+    await tester.pumpWidget(
+      _wrap(ThemeViewModel(store: _InMemoryThemeStore())),
+    );
 
     expect(find.byIcon(Icons.brightness_auto), findsOneWidget);
   });
 
-  testWidgets('tapping the toggle cycles the icon and the app theme mode',
-      (tester) async {
+  testWidgets('tapping the toggle cycles the icon and the app theme mode', (
+    tester,
+  ) async {
     final store = _InMemoryThemeStore();
     final vm = ThemeViewModel(store: store);
     await tester.pumpWidget(_wrap(vm));
 
-    // system → light
     await tester.tap(find.byIcon(Icons.brightness_auto));
     await tester.pumpAndSettle();
     expect(find.byIcon(Icons.light_mode), findsOneWidget);
     expect(vm.themeMode, ThemeMode.light);
     expect(store.value, 'light');
 
-    // light → dark
     await tester.tap(find.byIcon(Icons.light_mode));
     await tester.pumpAndSettle();
     expect(find.byIcon(Icons.dark_mode), findsOneWidget);
     expect(vm.themeMode, ThemeMode.dark);
 
-    // dark → system
     await tester.tap(find.byIcon(Icons.dark_mode));
     await tester.pumpAndSettle();
     expect(find.byIcon(Icons.brightness_auto), findsOneWidget);
     expect(vm.themeMode, ThemeMode.system);
   });
 
-  testWidgets('the toggle exposes a tooltip label for accessibility',
-      (tester) async {
-    await tester.pumpWidget(_wrap(ThemeViewModel(store: _InMemoryThemeStore())));
+  testWidgets('the toggle exposes a tooltip label for accessibility', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(ThemeViewModel(store: _InMemoryThemeStore())),
+    );
 
     expect(find.byTooltip('Theme: follow system'), findsOneWidget);
   });

@@ -2,11 +2,6 @@ import 'package:equatable/equatable.dart';
 
 import '../../domain/models/book.dart';
 
-/// The four visible search states the brief requires — loading, results, empty
-/// and error — plus an [SearchInitial] resting state before the first query.
-///
-/// Modelled as a sealed hierarchy so the UI switches over it exhaustively and
-/// each state renders distinctly.
 sealed class SearchState extends Equatable {
   const SearchState();
 
@@ -14,14 +9,10 @@ sealed class SearchState extends Equatable {
   List<Object?> get props => [];
 }
 
-/// No query entered yet.
 class SearchInitial extends SearchState {
   const SearchInitial();
 }
 
-/// A query is being typed but is still shorter than [minLength] — the minimum
-/// the remote API accepts. We hold off firing a request (which would 422) and
-/// nudge the user to keep typing instead of surfacing an error.
 class SearchTooShort extends SearchState {
   const SearchTooShort(this.minLength);
 
@@ -31,17 +22,14 @@ class SearchTooShort extends SearchState {
   List<Object?> get props => [minLength];
 }
 
-/// A first-page request is in flight.
 class SearchLoading extends SearchState {
   const SearchLoading();
 }
 
-/// The query completed but matched nothing.
 class SearchEmpty extends SearchState {
   const SearchEmpty();
 }
 
-/// The request failed; [message] is friendly, user-safe copy to display.
 class SearchError extends SearchState {
   const SearchError(this.message);
 
@@ -51,10 +39,6 @@ class SearchError extends SearchState {
   List<Object?> get props => [message];
 }
 
-/// One or more results are available.
-///
-/// [hasMore] drives infinite scroll; [isLoadingMore] shows a footer spinner
-/// while the next page loads without replacing the current list.
 class SearchResults extends SearchState {
   const SearchResults({
     required this.books,
@@ -67,7 +51,6 @@ class SearchResults extends SearchState {
   final bool hasMore;
   final bool isLoadingMore;
 
-  /// True when these results came from the local cache (F4).
   final bool isOffline;
 
   @override

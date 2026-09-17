@@ -89,14 +89,17 @@ void main() {
 
   testWidgets('shows an error with a retry action on failure', (tester) async {
     await tester.pumpWidget(
-      _wrap(_FakeDetailRepo(
-        Future.value(const FailureResult(ServerFailure('Network unavailable'))),
-      )),
+      _wrap(
+        _FakeDetailRepo(
+          Future.value(
+            const FailureResult(ServerFailure('Network unavailable')),
+          ),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Could not load this book.'), findsOneWidget);
-    // The raw technical message is never shown; friendly copy is.
     expect(find.text('Network unavailable'), findsNothing);
     expect(
       find.textContaining('The book service is having trouble'),

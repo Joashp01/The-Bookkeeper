@@ -4,7 +4,6 @@ import 'package:bookshelf/core/network/connectivity_checker.dart';
 import 'package:bookshelf/core/network/connectivity_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Fake connectivity source driven manually by the test.
 class _FakeConnectivity implements ConnectivityChecker {
   _FakeConnectivity({required this.initial});
 
@@ -46,28 +45,30 @@ void main() {
     await vm.start();
     expect(vm.isOffline, isFalse);
 
-    fake.controller.add(false); // went offline
+    fake.controller.add(false);
     await Future<void>.delayed(Duration.zero);
     expect(vm.isOffline, isTrue);
     expect(notifications, 1);
 
-    fake.controller.add(true); // back online
+    fake.controller.add(true);
     await Future<void>.delayed(Duration.zero);
     expect(vm.isOffline, isFalse);
     expect(notifications, 2);
   });
 
-  test('ignores repeated identical statuses (no redundant notifications)',
-      () async {
-    final fake = _FakeConnectivity(initial: true);
-    final vm = ConnectivityViewModel(checker: fake);
-    var notifications = 0;
-    vm.addListener(() => notifications++);
+  test(
+    'ignores repeated identical statuses (no redundant notifications)',
+    () async {
+      final fake = _FakeConnectivity(initial: true);
+      final vm = ConnectivityViewModel(checker: fake);
+      var notifications = 0;
+      vm.addListener(() => notifications++);
 
-    await vm.start();
-    fake.controller.add(true); // already online
-    await Future<void>.delayed(Duration.zero);
+      await vm.start();
+      fake.controller.add(true);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(notifications, 0);
-  });
+      expect(notifications, 0);
+    },
+  );
 }

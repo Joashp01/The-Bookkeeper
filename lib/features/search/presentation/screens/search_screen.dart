@@ -10,9 +10,6 @@ import '../viewmodels/search_view_model.dart';
 import '../widgets/book_tile.dart';
 import 'detail_screen.dart';
 
-/// The search screen (F1). Owns the scroll controller (a UI concern) and wires
-/// input and scroll events to the [SearchViewModel]; it contains no business
-/// logic of its own.
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -91,8 +88,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-/// Branded app-bar title: a book mark in the primary accent colour alongside
-/// the app name, so "The Bookkeeper" stands out from the surface app bar.
 class _BrandTitle extends StatelessWidget {
   const _BrandTitle();
 
@@ -114,9 +109,6 @@ class _BrandTitle extends StatelessWidget {
   }
 }
 
-/// App-bar action that cycles the theme (system → light → dark) via the
-/// [ThemeViewModel]. The icon reflects the current mode and its tooltip
-/// doubles as the semantic label for screen readers.
 class _ThemeToggleButton extends StatelessWidget {
   const _ThemeToggleButton();
 
@@ -136,8 +128,6 @@ class _ThemeToggleButton extends StatelessWidget {
   }
 }
 
-/// Renders the current [SearchState]. Each of the four states is visibly
-/// distinct.
 class _StateView extends StatelessWidget {
   const _StateView({required this.state, required this.scrollController});
 
@@ -153,7 +143,8 @@ class _StateView extends StatelessWidget {
       ),
       SearchTooShort(:final minLength) => _Centered(
         icon: Icons.keyboard,
-        message: 'Keep typing — enter at least $minLength characters to search.',
+        message:
+            'Keep typing — enter at least $minLength characters to search.',
       ),
       SearchLoading() => const Center(child: CircularProgressIndicator()),
       SearchEmpty() => const _Centered(
@@ -191,7 +182,6 @@ class _StateView extends StatelessWidget {
   }
 }
 
-/// Clear indicator shown above cached results when the device is offline (F4).
 class _OfflineBanner extends StatelessWidget {
   const _OfflineBanner();
 

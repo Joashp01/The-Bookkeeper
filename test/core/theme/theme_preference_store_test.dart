@@ -7,10 +7,12 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_common_ffi.dart';
 
 Future<Database> _openInMemory() => databaseFactoryFfi.openDatabase(
-      inMemoryDatabasePath,
-      options:
-          OpenDatabaseOptions(version: databaseVersion, onCreate: createSchema),
-    );
+  inMemoryDatabasePath,
+  options: OpenDatabaseOptions(
+    version: databaseVersion,
+    onCreate: createSchema,
+  ),
+);
 
 void main() {
   setUpAll(sqfliteFfiInit);
@@ -36,26 +38,32 @@ void main() {
       expect(await store.read(), 'dark');
     });
 
-    test('write replaces the previous value rather than adding a row', () async {
-      await store.write('dark');
-      await store.write('light');
+    test(
+      'write replaces the previous value rather than adding a row',
+      () async {
+        await store.write('dark');
+        await store.write('light');
 
-      expect(await store.read(), 'light');
-    });
+        expect(await store.read(), 'light');
+      },
+    );
   });
 
   test('theme choice survives a database restart (persistence)', () async {
     final dir = Directory.systemTemp.createTempSync('theme_test');
     final path = p.join(dir.path, 'restart.db');
-    final options =
-        OpenDatabaseOptions(version: databaseVersion, onCreate: createSchema);
+    final options = OpenDatabaseOptions(
+      version: databaseVersion,
+      onCreate: createSchema,
+    );
 
-    // Open, write, and close to simulate the app shutting down.
-    var database = await databaseFactoryFfi.openDatabase(path, options: options);
+    var database = await databaseFactoryFfi.openDatabase(
+      path,
+      options: options,
+    );
     await ThemePreferenceStoreImpl(database: database).write('dark');
     await database.close();
 
-    // Re-open the same file: the choice must still be there.
     database = await databaseFactoryFfi.openDatabase(path, options: options);
     final value = await ThemePreferenceStoreImpl(database: database).read();
     await database.close();

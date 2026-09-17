@@ -35,8 +35,9 @@ void main() {
   );
 
   void stubResponse(Object body, int statusCode) {
-    when(() => client.get(any()))
-        .thenAnswer((_) async => http.Response(jsonEncode(body), statusCode));
+    when(
+      () => client.get(any()),
+    ).thenAnswer((_) async => http.Response(jsonEncode(body), statusCode));
   }
 
   test('maps the work and threads author, year and fallback cover', () async {
@@ -57,14 +58,16 @@ void main() {
     expect(detail.firstPublishYear, 1965);
     expect(detail.description, 'A desert epic.');
     expect(detail.subjects, ['Science Fiction']);
-    // Work had no cover, so the search result's cover is used.
     expect(detail.coverId, 111);
   });
 
   test('handles description delivered as an object with a value key', () async {
     stubResponse(<String, dynamic>{
       'title': 'Dune',
-      'description': <String, dynamic>{'type': '/type/text', 'value': 'Nested.'},
+      'description': <String, dynamic>{
+        'type': '/type/text',
+        'value': 'Nested.',
+      },
     }, 200);
 
     final result = await repository.getDetail(book);
@@ -79,15 +82,11 @@ void main() {
     final result = await repository.getDetail(book);
 
     expect(result, isA<FailureResult<BookDetail>>());
-    expect(
-      (result as FailureResult<BookDetail>).failure,
-      isA<ServerFailure>(),
-    );
+    expect((result as FailureResult<BookDetail>).failure, isA<ServerFailure>());
   });
 
   test('transport failure returns a NetworkFailure', () async {
-    when(() => client.get(any()))
-        .thenThrow(http.ClientException('offline'));
+    when(() => client.get(any())).thenThrow(http.ClientException('offline'));
 
     final result = await repository.getDetail(book);
 
@@ -98,7 +97,11 @@ void main() {
   });
 
   test('an empty key fails fast without hitting the network', () async {
-    const keyless = Book(key: '', title: 'Dune', authorNames: ['Frank Herbert']);
+    const keyless = Book(
+      key: '',
+      title: 'Dune',
+      authorNames: ['Frank Herbert'],
+    );
 
     final result = await repository.getDetail(keyless);
 
@@ -106,7 +109,6 @@ void main() {
     final failure = (result as FailureResult<BookDetail>).failure;
     expect(failure, isA<ServerFailure>());
     expect((failure as ServerFailure).statusCode, 404);
-    // No round trip is wasted on a request we know would 404.
     verifyNever(() => client.get(any()));
   });
 }

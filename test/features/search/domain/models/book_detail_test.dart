@@ -21,7 +21,10 @@ void main() {
 
   group('BookDetail display decisions (F5)', () {
     test('authorDisplay falls back when there are no authors', () {
-      expect(buildDetail(authorNames: const []).authorDisplay, 'Unknown author');
+      expect(
+        buildDetail(authorNames: const []).authorDisplay,
+        'Unknown author',
+      );
     });
 
     test('descriptionDisplay shows the description when present', () {

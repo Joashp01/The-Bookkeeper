@@ -5,7 +5,6 @@ import 'package:sqflite/sqflite.dart';
 import '../../../../core/database/app_database.dart';
 import '../../domain/models/book.dart';
 
-/// A cached page of search results read back from local storage.
 class CachedSearch {
   const CachedSearch({required this.numFound, required this.books});
 
@@ -13,8 +12,6 @@ class CachedSearch {
   final List<Book> books;
 }
 
-/// Interface for caching the most recent search results locally (F4). Behind an
-/// interface so the repository can be tested without a database.
 abstract interface class SearchCacheDataSource {
   Future<void> save({
     required String query,
@@ -38,16 +35,12 @@ class SearchCacheDataSourceImpl implements SearchCacheDataSource {
     required int numFound,
     required List<Book> books,
   }) async {
-    await database.insert(
-      searchCacheTable,
-      <String, Object?>{
-        columnQuery: query,
-        columnPage: page,
-        columnNumFound: numFound,
-        columnBooks: jsonEncode(books.map(_bookToJson).toList()),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await database.insert(searchCacheTable, <String, Object?>{
+      columnQuery: query,
+      columnPage: page,
+      columnNumFound: numFound,
+      columnBooks: jsonEncode(books.map(_bookToJson).toList()),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   @override
@@ -73,19 +66,20 @@ class SearchCacheDataSourceImpl implements SearchCacheDataSource {
   }
 
   static Map<String, Object?> _bookToJson(Book book) => <String, Object?>{
-        'key': book.key,
-        'title': book.title,
-        'authors': book.authorNames,
-        'cover_i': book.coverId,
-        'year': book.firstPublishYear,
-      };
+    'key': book.key,
+    'title': book.title,
+    'authors': book.authorNames,
+    'cover_i': book.coverId,
+    'year': book.firstPublishYear,
+  };
 
   static Book _bookFromJson(Map<String, Object?> json) => Book(
-        key: json['key']! as String,
-        title: json['title']! as String,
-        authorNames:
-            (json['authors']! as List).whereType<String>().toList(growable: false),
-        coverId: json['cover_i'] as int?,
-        firstPublishYear: json['year'] as int?,
-      );
+    key: json['key']! as String,
+    title: json['title']! as String,
+    authorNames: (json['authors']! as List).whereType<String>().toList(
+      growable: false,
+    ),
+    coverId: json['cover_i'] as int?,
+    firstPublishYear: json['year'] as int?,
+  );
 }

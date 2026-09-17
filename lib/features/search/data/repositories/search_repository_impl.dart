@@ -8,13 +8,6 @@ import '../datasources/search_cache_data_source.dart';
 import '../datasources/search_remote_data_source.dart';
 import '../mappers/book_mapper.dart';
 
-/// Default [SearchRepository] backed by the remote data source, with an offline
-/// fallback (F4).
-///
-/// On a successful fetch the page is cached. When a request fails and the device
-/// is offline, the cached page (if any) is served with `isOffline: true` so the
-/// UI can show an offline indicator. Data-layer exceptions are translated by the
-/// shared [mapErrorToFailure]; there is no empty catch.
 class SearchRepositoryImpl implements SearchRepository {
   SearchRepositoryImpl({
     required this.remoteDataSource,
@@ -33,8 +26,9 @@ class SearchRepositoryImpl implements SearchRepository {
   }) async {
     try {
       final dto = await remoteDataSource.search(query: query, page: page);
-      final books =
-          dto.docs.map((doc) => doc.toDomain()).toList(growable: false);
+      final books = dto.docs
+          .map((doc) => doc.toDomain())
+          .toList(growable: false);
       await cache.save(
         query: query,
         page: page,
@@ -50,8 +44,6 @@ class SearchRepositoryImpl implements SearchRepository {
     }
   }
 
-  /// Serves cached results when the failure was caused by being offline;
-  /// otherwise returns the original failure.
   Future<Result<SearchResult>> _fallbackToCache({
     required String query,
     required int page,

@@ -15,15 +15,17 @@ void main() {
   });
 
   test('reports connected when a transport is available', () async {
-    when(() => connectivity.checkConnectivity())
-        .thenAnswer((_) async => [ConnectivityResult.wifi]);
+    when(
+      () => connectivity.checkConnectivity(),
+    ).thenAnswer((_) async => [ConnectivityResult.wifi]);
 
     expect(await checker.hasConnection(), isTrue);
   });
 
   test('reports disconnected when the only result is none', () async {
-    when(() => connectivity.checkConnectivity())
-        .thenAnswer((_) async => [ConnectivityResult.none]);
+    when(
+      () => connectivity.checkConnectivity(),
+    ).thenAnswer((_) async => [ConnectivityResult.none]);
 
     expect(await checker.hasConnection(), isFalse);
   });
