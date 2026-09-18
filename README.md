@@ -6,7 +6,6 @@ The app lets users search, view and favourite books using the [Open Library](htt
 
 It has debounced search with pagination, a book detail screen, favourites saved on the device, offline caching with an offline indicator, and a dark mode toggle.
 
-> Named **The Bookkeeper**.
 
 ## Tech Stack
 
